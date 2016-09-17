@@ -35,8 +35,6 @@ rlec_binary="redislabs-4.3.0-230-trusty-amd64.tar"
 rlec_admin_account_name="administrator"
 #TODO: change this password
 rlec_admin_account_password="password"
-#rlec services on nodes
-rlec_node_services="data,query,index"
 #ram configurations
 rlec_cluster_index_ramsize=1000
 rlec_cluster_ramsize=1000
