@@ -77,7 +77,7 @@ settings.sh: setting file for the automated cluster setup. seach for and modify 
 ````
     disable jumpbox: 1 to diable jumpbox. jumpbox is provisioned for security reasons. Without 
     a node within the same vnet, you end up exposing your database directly to the internet, 
-    opening Web Console (8091) and other RLEC ports to the public internet. 
+    opening Web Console (8443) and other RLEC ports to the public internet. 
     
     jumpbox_image_name: image to use for the jumpbox. using windows server by default
     

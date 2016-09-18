@@ -61,7 +61,7 @@ data_disk_size=1023
 
 
 ##jumpbox settings
-#disable jumpbox: set to 1 to diable jumpbox. jumpbox is provisioned for security reasons. you may need to open 8091 and other rlec server ports to the public internet without it. 
+#disable jumpbox: set to 1 to diable jumpbox. jumpbox is provisioned for security reasons. you may need to open 8443 and other rlec server ports to the public internet without it. 
 disable_jumpbox=0
 #image to use for the jumpbox. using windows server by default
 jumpbox_image_name="a699494373c04fc0bc8f2bb1389d6106__Windows-Server-2012-Datacenter-20160329-en.us-127GB.vhd"
