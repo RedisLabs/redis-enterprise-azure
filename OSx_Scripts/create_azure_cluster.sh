@@ -99,9 +99,16 @@ do
 	echo "INFO: RUNNING:" $cmd
 	eval $cmd
 
+	#extract RLEC
+	echo "INFO: Extracting RLEC .tar"
+	cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo tar vxf $rlec_binary'"
+	echo "INFO: RUNNING:" $cmd
+	eval $cmd
+	sleep 30
+
 	#install RLEC
 	echo "INFO: Installing RLEC"
-	cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo dpkg -i $rlec_binary'"
+	cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo ./install.sh -y'"
 	echo "INFO: RUNNING:" $cmd
 	eval $cmd
 	sleep 30
@@ -173,14 +180,14 @@ echo "INFO: SETUP COMPLETE!"
 echo "##############################################################################"
 if [ $disable_jumpbox -ne 1 ]
     then
-		echo "INFO: Connect to Jumpbox and Open Browser to RLEC Web Console at  http://"$first_node_ip":8091. Login with RLEC account name and password below."
+		echo "INFO: Connect to Jumpbox and Open Browser to RLEC Web Console at  http://"$first_node_ip":8443. Login with RLEC account name and password below."
 		echo "INFO: To Connect to the Jumpbox:"
 		echo "INFO: JUMPBOX VM:" $service_name".cloudapp.net at RDP Port 3398 " 
 		echo "INFO: JUMPBOX VM Account Name:" $jumpbox_vm_admin_account_name
 		echo "INFO: JUMPBOX VM Account Password:" $jumpbox_vm_admin_account_password
 	else
-		echo "INFO: Recommended: Use Another VM within the same vnet name ("$vnet_name") and Open Browser to RLEC Web Console at http://"$first_node_ip":8091. Login with RLEC account name and password below."
-		echo "INFO: NOT Recommended: Expose 8091 and Open Browser to RLEC Web Console at  http://"$service_name".cloudapp.net:8091. Login with RLEC account name and password below."
+		echo "INFO: Recommended: Use Another VM within the same vnet name ("$vnet_name") and Open Browser to RLEC Web Console at http://"$first_node_ip":8443. Login with RLEC account name and password below."
+		echo "INFO: NOT Recommended: Expose 8443 and Open Browser to RLEC Web Console at  http://"$service_name".cloudapp.net:8443. Login with RLEC account name and password below."
 fi
 echo "INFO: RLEC Admin Account:" $rlec_admin_account_name
 echo "INFO: RLEC Admin Password:" $rlec_admin_account_password
