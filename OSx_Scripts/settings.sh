@@ -32,7 +32,7 @@ rlec_total_nodes=3
 rlec_download="https://s3.amazonaws.com/rlec-downloads/4.3.0/redislabs-4.3.0-230-trusty-amd64.tar"
 rlec_binary="redislabs-4.3.0-230-trusty-amd64.tar"
 #TODO: change this username
-rlec_admin_account_name="administrator"
+rlec_admin_account_name="administrator@redislabs.com"
 #TODO: change this password
 rlec_admin_account_password="password"
 #ram configurations
