@@ -60,7 +60,7 @@ do
     sleep 120
 	
 	#check if persisted drives required
-	if [ $data_disk_count>0 ]
+	if [ $data_disk_count -gt 0 ]
 	then 
 		for ((j=1; j<=$data_disk_count; j++))
 		do 
@@ -123,24 +123,27 @@ do
         first_node_ip=$(eval $cmd)  
         echo "INFO: FIRST NODE IP:  $first_node_ip"
 
-		#execute permission change script
-		cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo chmod 755 /datadisks/disk1'"
-		echo "INFO: RUNNING:" $cmd
-		eval $cmd
-		cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo chown couchbase:couchbase /datadisks/disk1'"
-		echo "INFO: RUNNING:" $cmd
-		eval $cmd
-		
-		#set data and index path to data-disk location
-		echo "##### RUNNING NODE-INIT #####"
-		cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no /opt/couchbase/bin/couchbase-cli node-init -c $first_node_ip:8091 -u $rlec_admin_account_name -p $rlec_admin_account_password  --node-init-data-path=/datadisks/disk1 --node-init-index-path=/datadisks/disk1"
-		echo "INFO: RUNNING:" $cmd
-		eval $cmd
-
-		echo "##### RUNNING CLUSTER-INIT #####"
-		cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no /opt/couchbase/bin/couchbase-cli cluster-init -c $first_node_ip:8091 --cluster-username=$rlec_admin_account_name --cluster-password=$rlec_admin_account_password --cluster-init-ramsize=$rlec_cluster_ramsize --services=$rlec_node_services --cluster-index-ramsize=$rlec_cluster_index_ramsize"
-		echo "INFO: RUNNING:" $cmd
-		eval $cmd
+		if [ $data_disk_count -gt 0 ]
+		then 
+			#execute permission change script
+			cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo chmod 755 /datadisks/disk1'"
+			echo "INFO: RUNNING:" $cmd
+			eval $cmd
+			cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo chown redislabs:redislabs /datadisks/disk1'"
+			echo "INFO: RUNNING:" $cmd
+			eval $cmd
+			
+			#set data and index path to data-disk location
+			echo "##### RUNNING CLUSTER-INIT with persisted path #####"
+			cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo /opt/redislabs/bin/rladmin cluster create name rlec_azure.local username $rlec_admin_account_name password $rlec_admin_account_password persistent_path /datadisks/disk1'"
+			echo "INFO: RUNNING:" $cmd
+			eval $cmd
+		else
+			echo "##### RUNNING CLUSTER-INIT with ephemeral path #####"
+			cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo /opt/redislabs/bin/rladmin cluster create name rlec_azure.local username $rlec_admin_account_name password $rlec_admin_account_password'"
+			echo "INFO: RUNNING:" $cmd
+			eval $cmd
+		fi
 	else
         #add-cluster on non-first node
         cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'ifconfig | grep 10.0.0. | cut -d\":\" -f 2 | cut -d\" \" -f 1'"
@@ -148,46 +151,43 @@ do
         node_ip=$(eval $cmd)  
         echo "INFO: NODE IP: $node_ip"
 		
-		#execute permission change script
-		cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo chmod 755 /datadisks/disk1'"
-		echo "INFO: RUNNING:" $cmd
-		eval $cmd
-		cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo chown couchbase:couchbase /datadisks/disk1'"
-		echo "INFO: RUNNING:" $cmd
-		eval $cmd
+		if [ $data_disk_count -gt 0 ]
+		then 
+			#execute permission change script
+			cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo chmod 755 /datadisks/disk1'"
+			echo "INFO: RUNNING:" $cmd
+			eval $cmd
+			cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo chown redislabs:redislabs /datadisks/disk1'"
+			echo "INFO: RUNNING:" $cmd
+			eval $cmd
+			
+			#set data and index path to data-disk location
+			echo "##### RUNNING CLUSTER-INIT with persisted path #####"
+			cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo /opt/redislabs/bin/rladmin cluster join username $rlec_admin_account_name password $rlec_admin_account_password nodes $first_node_ip persistent_path /datadisks/disk1'"
+			echo "INFO: RUNNING:" $cmd
+			eval $cmd
+		else
+			echo "##### RUNNING CLUSTER-INIT with ephemeral path #####"
+			cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo /opt/redislabs/bin/rladmin cluster join username $rlec_admin_account_name password $rlec_admin_account_password nodes $first_node_ip'"
+			echo "INFO: RUNNING:" $cmd
+			eval $cmd
+		fi
 		
-		#set data and index path to data-disk location
-		echo "##### RUNNING NODE-INIT #####"
-		cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no /opt/couchbase/bin/couchbase-cli node-init -c $node_ip:8091 -u $rlec_admin_account_name -p $rlec_admin_account_password  --node-init-data-path=/datadisks/disk1 --node-init-index-path=/datadisks/disk1"
-		echo "INFO: RUNNING:" $cmd
-		eval $cmd
-
-		echo "##### RUNNING SERVER-ADD #####"
-		cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private /opt/couchbase/bin/couchbase-cli server-add -c $first_node_ip:8091 -u $rlec_admin_account_name -p $rlec_admin_account_password --server-add=$node_ip:8091 --server-add-username=$rlec_admin_account_name --server-add-password=$rlec_admin_account_password --services=$rlec_node_services"
-		echo "INFO: RUNNING:" $cmd
-		eval $cmd
 	fi
 done
-
-#rebalance cluster
-echo "INFO: ##### RUNNING REBALANCE #####"
-cmd="ssh -p 1 $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no /opt/couchbase/bin/couchbase-cli rebalance -c $first_node_ip:8091 -u $rlec_admin_account_name -p $rlec_admin_account_password"
-echo "INFO: RUNNING:" $cmd
-eval $cmd
-
 
 echo "INFO: SETUP COMPLETE!"
 echo "##############################################################################"
 if [ $disable_jumpbox -ne 1 ]
     then
-		echo "INFO: Connect to Jumpbox and Open Browser to RLEC Web Console at  http://"$first_node_ip":8443. Login with RLEC account name and password below."
+		echo "INFO: Connect to Jumpbox and Open Browser to RLEC Web Console at  https://"$first_node_ip":8443. Login with RLEC account name and password below."
 		echo "INFO: To Connect to the Jumpbox:"
 		echo "INFO: JUMPBOX VM:" $service_name".cloudapp.net at RDP Port 3398 " 
 		echo "INFO: JUMPBOX VM Account Name:" $jumpbox_vm_admin_account_name
 		echo "INFO: JUMPBOX VM Account Password:" $jumpbox_vm_admin_account_password
 	else
-		echo "INFO: Recommended: Use Another VM within the same vnet name ("$vnet_name") and Open Browser to RLEC Web Console at http://"$first_node_ip":8443. Login with RLEC account name and password below."
-		echo "INFO: NOT Recommended: Expose 8443 and Open Browser to RLEC Web Console at  http://"$service_name".cloudapp.net:8443. Login with RLEC account name and password below."
+		echo "INFO: Recommended: Use Another VM within the same vnet name ("$vnet_name") and Open Browser to RLEC Web Console at https://"$first_node_ip":8443. Login with RLEC account name and password below."
+		echo "INFO: NOT Recommended: Expose 8443 and Open Browser to RLEC Web Console at  https://"$service_name".cloudapp.net:8443. Login with RLEC account name and password below."
 fi
 echo "INFO: RLEC Admin Account:" $rlec_admin_account_name
 echo "INFO: RLEC Admin Password:" $rlec_admin_account_password
