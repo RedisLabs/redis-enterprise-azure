@@ -1,9 +1,17 @@
 # Automated Testing Redis Labs Enterprise Cluster on Azure 
 
-Simple automated setup for a redis labs enterprise cluster on azure. Ideal for build up and teardown of test environments or functional tests. Works with RLEC v4.4 or later. Simply point to the build you like to use and provide azure account details in the settings.sh file, followed by create_azure_cluster. use delete_azure_cluster to destroy the cluster.
+Simple automated setup for a redis labs enterprise cluster (RLEC) deployment on Azure. Ideal for build up and teardown of test environments or functional tests. Works with RLEC v4.4 or later. 
+
+## Getting Started
+- Choose the correct RLEC version to deploy for your environment in settings.sh under ````rlec_download```` and ````rlec_binaries````
+- Provide Azure subscription and account details in the settings.sh under ````azure_account```` and ````azure_subscription_id````
+- Provide the ceritificates for vm provisioning in settings.sh under ````vm_auth_cert_public```` and ````vm_auth_cert_private````
+- Run ````create_azure_cluster.sh```` 
+- For teardown use delete_azure_cluster.sh to destroy the cluster.
 
 _Limitations_: TBD
 
+# Details
 ## OSx Scripts: 
 OSx script for setting up a multi node RLEC cluster on Azure VMs.
 
