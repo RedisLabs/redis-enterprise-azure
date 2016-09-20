@@ -10,10 +10,10 @@ OSx script for setting up a multi node RLEC cluster on Azure VMs.
 ### Prerequisites
 install_prereqs.sh: Install required dependencies like node and azure-cli. Run this before your first run.
 
-### Settings
+### Settings (settings.sh)
 settings.sh: setting file for the automated cluster setup. seach for and modify the variables marked with text "TODO" in the setting file before running create_ and delete_ scripts. the scripts will fail if you do not review and assign the required values for these variables at minimum.
 
-**RLEC Settings: (settings.sh)**
+**RLEC Settings:**
 ````
     rlec_total_nodes: set the number of nodes in the cluster.
     
@@ -26,17 +26,7 @@ settings.sh: setting file for the automated cluster setup. seach for and modify 
     TODO: change this value before use. 
     
     rlec_admin_account_password: database administration password for RLEC 
-    cluster. TODO: change this value before use. 
-    
-    rlec_node_services: services to enable on all nodes (data, index, query etc.). All 
-    deployments do the simpler homogenious deployment with the same services on all nodes. 
-    "data" service is always required and other services are optional. 
-    
-    cluster_ramsize: initial data service RAM quota per node. can be changed under settings tab 
-    in the RLEC web console. 
-    
-    cluster_index_ramsize: initial index service RAM quota per node. used if index service is 
-    enabled. can be changed under settings tab in the RLEC web console. 
+    cluster. TODO: change this value before use.  
 ````
 
 **Azure Config Settings:**
@@ -107,7 +97,7 @@ settings.sh: setting file for the automated cluster setup. seach for and modify 
     script multiple times.
 ````
 
-### Create Azure Cluster (create_azure_cluste.sh)
+### Create Azure Cluster (create_azure_cluster.sh)
 Main script to create the VMs, download and install RLEC and set up the cluster with a final rebalance. Will require you to login to your Azure account. 
 Settings will also, by default, allow a Windows Server jumpbox to be configured in the same vnet (see the vnet_name. setting above for details on vnets). The jumpbox ensures you don't expose your RLEC directly to the internet. You can disable the jumpbox if you are using an existing vnet where you already have a browser to administer RLEC, Or if you are simply looking to administer through the RLEC commandline interface. 
 
