@@ -35,9 +35,7 @@ rlec_binary="redislabs-4.3.0-230-trusty-amd64.tar"
 rlec_admin_account_name="administrator@redislabs.com"
 #TODO: change this password
 rlec_admin_account_password="password"
-#ram configurations
-rlec_cluster_index_ramsize=1000
-rlec_cluster_ramsize=1000
+
 
 ##azure settings
 #TODO: use "azure login -u account" +  "azure account show" to get  account and subscriptionid
@@ -55,7 +53,7 @@ service_name="rlec-service"
 #region where to provision all nodes
 region="'west US'"
 #number of data-disks to attach - check the max data-disk allowed on each SKU
-data_disk_count=2
+data_disk_count=1
 #size of the data-disk in GB max is 1023
 data_disk_size=1023
 
