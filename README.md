@@ -19,7 +19,8 @@ OSx script for setting up a multi node RLEC cluster on Azure VMs.
 install_prereqs.sh: Install required dependencies like node and azure-cli. Run this before your first run.
 
 ### Settings (settings.sh)
-settings.sh: setting file for the automated cluster setup. seach for and modify the variables marked with text "TODO" in the setting file before running create_ and delete_ scripts. the scripts will fail if you do not review and assign the required values for these variables at minimum.
+settings.sh: setting file for the automated cluster setup. Seach for and investigate the variables marked with text "TODO" in the setting file before running create_ and delete_ scripts. 
+NOTE: The scripts will fail by default as Azure subscription and account information will need to be populated.
 
 **RLEC Settings:**
 ````
@@ -30,7 +31,7 @@ settings.sh: setting file for the automated cluster setup. seach for and modify 
     rlec_binary: name of the binary for RLEC. used to help rename the downloaded 
     binary. 
     
-    rlec_admin_account_name: database administration account for RLEC cluster.
+    rlec_admin_account_name: database administration account for RLEC cluster. 
     TODO: change this value before use. 
     
     rlec_admin_account_password: database administration password for RLEC 
@@ -40,8 +41,8 @@ settings.sh: setting file for the automated cluster setup. seach for and modify 
 **Azure Config Settings:**
 ````
     azure_account: your fully qualified azure account. account you use to login to portal. best 
-    practice is to use a delegate admin account to protect against account compromise. TODO: 
-    change this value before use.
+    practice is to use a delegate admin account to protect against account compromise. 
+    TODO: change this value before use.
     
     azure_subscription_id: azure subscription id for the azure account. if you don't know your 
     subscription id, use "azure login -u account" +  "azure account show" to get  account and 
