@@ -31,6 +31,8 @@ rlec_total_nodes=3
 #ubuntu 14 image for rlec server. version can be 4.0 or later
 rlec_download="https://s3.amazonaws.com/rlec-downloads/4.3.0/redislabs-4.3.0-230-trusty-amd64.tar"
 rlec_binary="redislabs-4.3.0-230-trusty-amd64.tar"
+#add a reference to the local rlec license file if one exists. free license will be used if none is specified.
+rlec_license_file=""
 #TODO: change this username
 rlec_admin_account_name="administrator@redislabs.com"
 #TODO: change this password
