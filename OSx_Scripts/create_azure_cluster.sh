@@ -123,7 +123,7 @@ do
         first_node_ip=$(eval $cmd)  
         echo "INFO: FIRST NODE IP:  $first_node_ip"
 
-		#add license file if one exists
+		#move license file if one exists
 		if [ $rlec_license_file != "" ]
 		then
 			echo "INFO: ##### UPLOADING LICENSE FILE #####"
@@ -144,12 +144,22 @@ do
 			
 			#set data and index path to data-disk location
 			echo "##### RUNNING CLUSTER-INIT with persisted path #####"
-			cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo /opt/redislabs/bin/rladmin cluster create name rlec_azure.local username $rlec_admin_account_name password $rlec_admin_account_password persistent_path /datadisks/disk1 license_file $rlec_license_file'"
+			cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo /opt/redislabs/bin/rladmin cluster create name rlec_azure.local username $rlec_admin_account_name password $rlec_admin_account_password persistent_path /datadisks/disk1"
+			if [ $rlec_license_file != "" ]
+			then
+				cmd=cmd+" license_file $rlec_license_file'"
+			else
+				cmd=cmd+"'"
 			echo "INFO: RUNNING:" $cmd
 			eval $cmd
 		else
 			echo "##### RUNNING CLUSTER-INIT with ephemeral path #####"
-			cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo /opt/redislabs/bin/rladmin cluster create name rlec_azure.local username $rlec_admin_account_name password $rlec_admin_account_password license_file $rlec_license_file'"
+			cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo /opt/redislabs/bin/rladmin cluster create name rlec_azure.local username $rlec_admin_account_name password $rlec_admin_account_password"
+			if [ $rlec_license_file != "" ]
+			then
+				cmd=cmd+" license_file $rlec_license_file'"
+			else
+				cmd=cmd+"'"
 			echo "INFO: RUNNING:" $cmd
 			eval $cmd
 		fi

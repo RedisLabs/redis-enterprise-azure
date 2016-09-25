@@ -31,6 +31,8 @@ NOTE: The scripts will fail by default as Azure subscription and account informa
     rlec_binary: name of the binary for RLEC. used to help rename the downloaded 
     binary. 
     
+    rlec_license_file: reference to the local rlec license file in the form a of a local path "~/path_to_rlec_license_file.txt"
+
     rlec_admin_account_name: database administration account for RLEC cluster. 
     TODO: change this value before use. 
     
