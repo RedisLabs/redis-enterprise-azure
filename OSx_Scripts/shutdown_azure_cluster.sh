@@ -29,7 +29,7 @@
 source ./my_settings.sh
 
 #warning
-echo "WARNING: This will shutdown your cluster nodes starting with the `"$vm_name_prefix"` prefix. [y/n]"
+echo "WARNING: This will shutdown your cluster nodes starting with the $vm_name_prefix prefix. [y/n]"
 read yes_no
 
 if [ $yes_no == 'y' ]

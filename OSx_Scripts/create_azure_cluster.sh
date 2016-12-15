@@ -207,7 +207,7 @@ if [ $disable_jumpbox -ne 1 ]
 		echo "INFO: JUMPBOX VM Account Name:" $jumpbox_vm_admin_account_name
 		echo "INFO: JUMPBOX VM Account Password:" $jumpbox_vm_admin_account_password
 	else
-		echo "INFO: Recommended: Use Another VM within the same vnet name ("$vnet_name") and Open Browser to RLEC Web Console at https://"$first_node_ip":8443. Login with RLEC account name and password below."
+		echo "INFO: Recommended: Use Another VM within the same vnet name ($vnet_name) and Open Browser to RLEC Web Console at https://"$first_node_ip":8443. Login with RLEC account name and password below."
 		echo "INFO: NOT Recommended: Expose 8443 and Open Browser to RLEC Web Console at  https://"$service_name".cloudapp.net:8443. Login with RLEC account name and password below."
 fi
 echo "INFO: RLEC Admin Account:" $rlec_admin_account_name
