@@ -28,18 +28,43 @@
 #read settings
 source ./my_settings.sh
 
-#switch azure mode to asm
-azure config mode asm
-azure login -u $azure_account
+#warning
+echo "WARNING: This will start your cluster nodes starting with the `"$vm_name_prefix"` prefix. [y/n]"
+read yes_no
 
-for ((i=1; i<=$rlec_total_nodes; i++))
-do
-    #shutdown vms
-	echo "INFO: Working on instance: $i"
-    cmd="azure vm start $vm_name_prefix-$i"
-    echo "INFO: RUNNING:" $cmd 
-    eval $cmd
-done
+if [ $yes_no == 'y' ]
+then
+    #login
+    azure login -u $azure_account
+
+    #set mode to asm
+    azure config mode asm
 
 
+    #loop to clean up all nodes.
+    for ((i=1; i<=$rlec_total_nodes; i++))
+    do
+        echo "CMD: azure vm start "$vm_name_prefix"-"$i" -q"
+        if [ $enable_fast_start == 1 ]
+        then
+            yes_no='y'
+        else
+            echo "CONFIRM STARTING JUMPBOX: "$vm_name_prefix"-"$i" [y/n]"
+            read yes_no
+        fi
+            
+        if [ $yes_no == 'y' ]
+        then
+            echo "STARTING RLEC NODE: "$vm_name_prefix"-"$i
+            azure vm start $vm_name_prefix-$i -q
+        else
+            echo "SKIPPED START STEP. DID NOT START RLEC NODE: "$vm_name_prefix"-"$i
+        fi
+    done
+
+    echo "##############################################################################"
+    echo "INFO: START COMPLETED"
+else
+    echo "INFO: START CANCELLED"
+fi
 

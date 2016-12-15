@@ -49,7 +49,7 @@ then
         then
             yes_no='y'
         else
-            echo "CONFIRM RESTARTING JUMPBOX: "$vm_name_prefix"-"$i" [y/n]"
+            echo "CONFIRM RESTARTING RLEC NODE: "$vm_name_prefix"-"$i" [y/n]"
             read yes_no
         fi
             
@@ -58,7 +58,7 @@ then
             echo "RESTARTING RLEC NODE: "$vm_name_prefix"-"$i
             azure vm restart $vm_name_prefix-$i -q
         else
-            echo "SKIPPED CLEANUP STEP. DID NOT RESTART RLEC NODE: "$vm_name_prefix"-"$i
+            echo "SKIPPED RESTART STEP. DID NOT RESTART RLEC NODE: "$vm_name_prefix"-"$i
         fi
     done
 
@@ -67,35 +67,4 @@ then
 else
     echo "INFO: RESTART CANCELLED"
 fi
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#read settings
-source ./my_settings.sh
-
-#switch azure mode to asm
-azure config mode asm
-azure login -u $azure_account
-
-for ((i=1; i<=$rlec_total_nodes; i++))
-do
-    #shutdown vms
-	echo "INFO: Working on instance: $i"
-    cmd="azure vm restart $vm_name_prefix-$i"
-    echo "INFO: RUNNING:" $cmd 
-    eval $cmd
-done
-
-
 

@@ -70,7 +70,7 @@ fi
         then
             yes_no='y'
         else
-            echo "CONFIRM DELETING JUMPBOX: "$vm_name_prefix"-"$i" [y/n]"
+            echo "CONFIRM DELETING RLEC NODE: "$vm_name_prefix"-"$i" [y/n]"
             read yes_no
         fi
             
