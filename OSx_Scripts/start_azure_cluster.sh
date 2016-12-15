@@ -36,7 +36,7 @@ for ((i=1; i<=$rlec_total_nodes; i++))
 do
     #shutdown vms
 	echo "INFO: Working on instance: $i"
-    cmd="azure vm shutdown $vm_name_prefix-$i"
+    cmd="azure vm start $vm_name_prefix-$i"
     echo "INFO: RUNNING:" $cmd 
     eval $cmd
 done

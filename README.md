@@ -114,3 +114,9 @@ Settings will also, by default, allow a Windows Server jumpbox to be configured 
 
 ### Delete Azure Cluster (delete_azure_cluster.sh)
 used to clean up the jumpbox, cluster and vms. Will require you to login to your Azure account. cleanup looks for the vm_name_prefix set in the settings file to match and delete VMs. To ensure it does not do accidental deletes, enable_fast_delete is off by default. You can enable_fast_delete, however make sure your prefix is unique and does not match your existing VMs in your subscription. 
+
+### Start, Shutdown and Restart Azure Cluster (start_azure_cluster.sh, shutdown_azure_cluster.sh, restart_azure_cluster.sh)
+used to manipulate the cluter vms for simplifying a cluster restart, shutdown or start. Will require you to login to your Azure account. 
+Scripts looks for the vm_name_prefix set in the settings file to match and delete VMs. To ensure it does not do accidental shutdown or restarts, 
+enable_fast_restart, enable_fast_start, enable_fast_shutdown, is off by default. You can the settings, however make sure your prefix is unique 
+and does not match your existing VMs in your subscription. 

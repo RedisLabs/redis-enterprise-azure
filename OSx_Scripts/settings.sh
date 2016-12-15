@@ -85,3 +85,9 @@ rlec_vm_admin_account_name="rl_vmadmin"
 remove_known_hosts=1
 #enable fast delete will supress confirmation on deletes of each VM. do this only if you are certain delete will not harm your existing VMs and you have tried the script multiple times.
 enable_fast_delete=0
+#enable fast restart will supress confirmation on restarts of each VM. do this only if you are certain restart will not harm your existing VMs and you have tried the script multiple times.
+$enable_fast_restart=0
+#enable fast start will supress confirmation on start of each VM. do this only if you are certain start will not harm your existing VMs and you have tried the script multiple times.
+$enable_fast_start=0
+#enable fast shutdown will supress confirmation on shutdowns of each VM. do this only if you are certain shutdown will not harm your existing VMs and you have tried the script multiple times.
+$enable_fast_shutdown=0
