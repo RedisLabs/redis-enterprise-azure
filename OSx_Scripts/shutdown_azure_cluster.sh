@@ -44,7 +44,7 @@ then
     #loop to clean up all nodes.
     for ((i=1; i<=$rlec_total_nodes; i++))
     do
-        echo "CMD: azure vm shutdown "$vm_name_prefix"-"$i" -q"
+        echo "CMD: azure vm shutdown "$vm_name_prefix"-"$i" "
         if [ $enable_fast_shutdown == 1 ]
         then
             yes_no='y'
@@ -56,7 +56,7 @@ then
         if [ $yes_no == 'y' ]
         then
             echo "SHUTDOWN RLEC NODE: "$vm_name_prefix"-"$i
-            azure vm shutdown $vm_name_prefix-$i -q
+            azure vm shutdown $vm_name_prefix-$i 
         else
             echo "SKIPPED SHUTDOWN STEP. DID NOT SHUTDOWN RLEC NODE: "$vm_name_prefix"-"$i
         fi

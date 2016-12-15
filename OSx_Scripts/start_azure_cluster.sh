@@ -29,7 +29,7 @@
 source ./my_settings.sh
 
 #warning
-echo "WARNING: This will start your cluster nodes starting with the `"$vm_name_prefix"` prefix. [y/n]"
+printf "WARNING: This will start your cluster nodes starting with the $vm_name_prefix prefix. [y/n] "
 read yes_no
 
 if [ $yes_no == 'y' ]
@@ -44,7 +44,7 @@ then
     #loop to clean up all nodes.
     for ((i=1; i<=$rlec_total_nodes; i++))
     do
-        echo "CMD: azure vm start "$vm_name_prefix"-"$i" -q"
+        echo "CMD: azure vm start "$vm_name_prefix"-"$i" "
         if [ $enable_fast_start == 1 ]
         then
             yes_no='y'
@@ -56,7 +56,7 @@ then
         if [ $yes_no == 'y' ]
         then
             echo "STARTING RLEC NODE: "$vm_name_prefix"-"$i
-            azure vm start $vm_name_prefix-$i -q
+            azure vm start $vm_name_prefix-$i
         else
             echo "SKIPPED START STEP. DID NOT START RLEC NODE: "$vm_name_prefix"-"$i
         fi

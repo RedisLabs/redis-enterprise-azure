@@ -29,7 +29,7 @@
 source ./my_settings.sh
 
 #warning
-echo "WARNING: This will wipe out your cluster nodes, jumpbox and delete all your data on VMs starting with the `"$vm_name_prefix"` prefix. vnet "$vnet_name" will also be cleaned up if no other node on the same vnet remains. [y/n]"
+echo "WARNING: This will wipe out your cluster nodes, jumpbox and delete all your data on VMs starting with the $vm_name_prefix prefix. vnet $vnet_name will also be cleaned up if no other node on the same vnet remains. [y/n]"
 read yes_no
 
 if [ $yes_no == 'y' ]
@@ -84,12 +84,12 @@ fi
     done
 
     #delete the vnet
-        echo "CMD: azure network vnet delete "$vnet_name" -q"
+        echo "CMD: azure network vnet delete $vnet_name -q"
         if [ $enable_fast_delete == 1 ]
         then
             yes_no='y'
         else
-            echo "CONFIRM DELETING VNET: "$vnet_name" [y/n]"
+            echo "CONFIRM DELETING VNET: $vnet_name [y/n]"
             read yes_no
         fi
             
