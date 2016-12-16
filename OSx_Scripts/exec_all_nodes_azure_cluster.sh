@@ -28,43 +28,33 @@
 #read settings
 source ./my_settings.sh
 
-#warning
-printf  "WARNING: This will restart your cluster nodes starting with the $vm_name_prefix prefix. [y/n] "
-read yes_no
+IFS=$'\r\n'
+GLOBIGNORE='*'
+GREEN=`tput setaf 2`
+RESET=`tput sgr0`
 
-if [ $yes_no == 'y' ]
+#display help if not commandline parameter
+if [[ $1 == "" ]]
 then
-    #login
-    azure login -u $azure_account
-
-    #set mode to asm
-    azure config mode asm
-
-
-    #loop to clean up all nodes.
-    for ((i=1; i<=$rlec_total_nodes; i++))
-    do
-        echo "CMD: azure vm restart "$vm_name_prefix"-"$i" "
-        if [ $enable_fast_restart == 1 ]
-        then
-            yes_no='y'
-        else
-            echo "CONFIRM RESTARTING RLEC NODE: "$vm_name_prefix"-"$i" [y/n]"
-            read yes_no
-        fi
-            
-        if [ $yes_no == 'y' ]
-        then
-            echo "RESTARTING RLEC NODE: "$vm_name_prefix"-"$i
-            azure vm restart $vm_name_prefix-$i 
-        else
-            echo "SKIPPED RESTART STEP. DID NOT RESTART RLEC NODE: "$vm_name_prefix"-"$i
-        fi
-    done
-
-    echo "##############################################################################"
-    echo "INFO: RESTART COMPLETED"
-else
-    echo "INFO: RESTART CANCELLED"
+  echo "Provide a command to run on all nodes on the RLEC cluster."
+  echo ""
+  echo "Following example confirms there is a listener active on port 8091 across all nodes"
+  echo "  ./exec_all_nodes_azure_cluster.sh 'netstat -a | grep 8443' " 
+  exit 0
 fi
 
+for ((i=1; i<=$rlec_total_nodes; i++))
+do
+  #exec $1 the command passed in
+  cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no '$1' "
+  node_output=$(eval $cmd)
+  
+  #get node ip address
+  cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'ifconfig | grep 10.0.0. | cut -d\":\" -f 2 | cut -d\" \" -f 1'"
+  node_ip=$(eval $cmd)
+
+  echo "################################## NODE: $node_ip - START ##################################"
+  echo "$node_output"
+  echo "################################## NODE: $node_ip - END   ##################################"
+  echo ""
+done
