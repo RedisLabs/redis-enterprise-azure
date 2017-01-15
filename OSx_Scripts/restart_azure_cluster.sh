@@ -42,23 +42,23 @@ then
 
 
     #loop to clean up all nodes.
-    for ((i=1; i<=$rlec_total_nodes; i++))
+    for ((i=1; i<=$rp_total_nodes; i++))
     do
         echo "CMD: azure vm restart "$vm_name_prefix"-"$i" "
         if [ $enable_fast_restart == 1 ]
         then
             yes_no='y'
         else
-            echo "CONFIRM RESTARTING RLEC NODE: "$vm_name_prefix"-"$i" [y/n]"
+            echo "CONFIRM RESTARTING Redis Pack NODE: "$vm_name_prefix"-"$i" [y/n]"
             read yes_no
         fi
             
         if [ $yes_no == 'y' ]
         then
-            echo "RESTARTING RLEC NODE: "$vm_name_prefix"-"$i
+            echo "RESTARTING Redis Pack NODE: "$vm_name_prefix"-"$i
             azure vm restart $vm_name_prefix-$i 
         else
-            echo "SKIPPED RESTART STEP. DID NOT RESTART RLEC NODE: "$vm_name_prefix"-"$i
+            echo "SKIPPED RESTART STEP. DID NOT RESTART Redis Pack NODE: "$vm_name_prefix"-"$i
         fi
     done
 

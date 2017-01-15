@@ -54,7 +54,7 @@ if [ $disable_jumpbox -ne 1 ]
     eval $cmd
 fi
 
-for ((i=1; i<=$rlec_total_nodes; i++))
+for ((i=1; i<=$rp_total_nodes; i++))
 do
 
 	#create vm
@@ -62,7 +62,7 @@ do
 	echo $info_color"##############################################################################"$no_color
 	echo $info_color"INFO"$no_color": WORKING ON VM INSTANCE: $i"
 	echo ""
-    cmd="azure vm create -l $region -z $rlec_vm_sku -e $i -n $vm_name_prefix-$i -w $vnet_name -c $service_name -t $vm_auth_cert_public -g $rlec_vm_admin_account_name -P -s $azure_subscription_id $rlec_vm_image_name"
+    cmd="azure vm create -l $region -z $rp_vm_sku -e $i -n $vm_name_prefix-$i -w $vnet_name -c $service_name -t $vm_auth_cert_public -g $rp_vm_admin_account_name -P -s $azure_subscription_id $rp_vm_image_name"
     echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd 
     eval $cmd
     sleep 120
@@ -82,50 +82,50 @@ do
 		#set up RAID0 on data-disks
 		echo $info_color"INFO"$no_color": ESTABLISHING RAID0 ON /datadisks/disk1"
 		#download script
-		cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo wget \"https://raw.githubusercontent.com/redislabs/rlec-azure/master/OSx_Scripts/vm-disk-utils-0.1.sh\"'"
+		cmd="ssh -p $i $rp_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo wget \"https://raw.githubusercontent.com/redislabs/rp-azure/master/OSx_Scripts/vm-disk-utils-0.1.sh\"'"
 		echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
 		eval $cmd
 		#chmod for script execution
-		cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo chmod 555 vm-disk-utils-0.1.sh'"
+		cmd="ssh -p $i $rp_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo chmod 555 vm-disk-utils-0.1.sh'"
 		echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
 		eval $cmd
 		
 		#install mdadm
-		cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo env DEBIAN_FRONTEND=noninteractive apt-get -y install mdadm'"
+		cmd="ssh -p $i $rp_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo env DEBIAN_FRONTEND=noninteractive apt-get -y install mdadm'"
 		echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
 		eval $cmd
 		
 		#execute RAID disk setup script
-		cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo ./vm-disk-utils-0.1.sh -b /datadisks -s'"
+		cmd="ssh -p $i $rp_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo ./vm-disk-utils-0.1.sh -b /datadisks -s'"
 		echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
 		eval $cmd
 	fi
 
-	#download RLEC
+	#download Redis Pack
 	echo $info_color"INFO"$no_color": DOWNLOADING Redis Pack"
-	cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo wget \"$rlec_download\" -O $rlec_binary'"
+	cmd="ssh -p $i $rp_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo wget \"$rp_download\" -O $rp_binary'"
 	echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
 	eval $cmd
 
-	#extract RLEC
+	#extract Redis Pack
 	echo $info_color"INFO"$no_color": EXTRACTING Redis Pack .tar"
-	cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo tar vxf $rlec_binary'"
+	cmd="ssh -p $i $rp_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo tar vxf $rp_binary'"
 	echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
 	eval $cmd
 	sleep 30
 
-	#install RLEC
+	#install Redis Pack
 	echo $info_color"INFO"$no_color": INSTALLING Redis Pack"
-	cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo ./install.sh -y'"
+	cmd="ssh -p $i $rp_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo ./install.sh -y'"
 	echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
 	eval $cmd
 	sleep 30
 
 	#execute permission for SSD drive
-	cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo chmod 755 /mnt'"
+	cmd="ssh -p $i $rp_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo chmod 755 /mnt'"
 	echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
 	eval $cmd
-	cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo chown redislabs:redislabs /mnt'"
+	cmd="ssh -p $i $rp_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo chown redislabs:redislabs /mnt'"
 	echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
 	eval $cmd
 
@@ -134,16 +134,16 @@ do
 	then 
         #init-cluster on first node and add-node on rest of the nodes
 		echo $info_color"INFO"$no_color": GETTING FIRST NODE IP"
-        cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'ifconfig | grep 10.0.0. | cut -d\":\" -f 2 | cut -d\" \" -f 1'"
+        cmd="ssh -p $i $rp_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'ifconfig | grep 10.0.0. | cut -d\":\" -f 2 | cut -d\" \" -f 1'"
         echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
         first_node_ip=$(eval $cmd)  
         echo $info_color"INFO"$no_color": FIRST NODE IP:  $first_node_ip"
 
 		#move license file if one exists
-		if [ $rlec_license_file != "" ]
+		if [ $rp_license_file != "" ]
 		then
 			echo $info_color"INFO"$no_color": UPLOADING LICENSE FILE"
-	        cmd="cat $rlec_license_file | ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'cat -> $rlec_license_file'"
+	        cmd="cat $rp_license_file | ssh -p $i $rp_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'cat -> $rp_license_file'"
     	    echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
 			eval $cmd
 		fi
@@ -151,19 +151,19 @@ do
 		if [ $data_disk_count -gt 0 ]
 		then 
 			#execute permission change script
-			cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo chmod 755 /datadisks/disk1'"
+			cmd="ssh -p $i $rp_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo chmod 755 /datadisks/disk1'"
 			echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
 			eval $cmd
-			cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo chown redislabs:redislabs /datadisks/disk1'"
+			cmd="ssh -p $i $rp_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo chown redislabs:redislabs /datadisks/disk1'"
 			echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
 			eval $cmd
 			
 			#set data path to data-disk location
 			echo $info_color"INFO"$no_color": RUNNING CLUSTER-INIT with PERSISTED STORAGE"
-			cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo /opt/redislabs/bin/rladmin cluster create name $rlec_fqdn username $rlec_admin_account_name password $rlec_admin_account_password persistent_path /datadisks/disk1 flash_enabled flash_path /mnt"
-			if [ $rlec_license_file != "" ]
+			cmd="ssh -p $i $rp_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo /opt/redislabs/bin/rladmin cluster create name $rp_fqdn username $rp_admin_account_name password $rp_admin_account_password persistent_path /datadisks/disk1 flash_enabled flash_path /mnt"
+			if [ $rp_license_file != "" ]
 			then
-				cmd="$cmd license_file $rlec_license_file'"
+				cmd="$cmd license_file $rp_license_file'"
 			else
 				cmd="$cmd'"
 			fi
@@ -171,10 +171,10 @@ do
 			eval $cmd
 		else
 			echo $info_color"INFO"$no_color": RUNNING CLUSTER-INIT with EPHEMERAL STORAGE"
-			cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo /opt/redislabs/bin/rladmin cluster create name $rlec_fqdn username $rlec_admin_account_name password $rlec_admin_account_password flash_enabled flash_path /mnt"
-			if [ $rlec_license_file != "" ]
+			cmd="ssh -p $i $rp_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo /opt/redislabs/bin/rladmin cluster create name $rp_fqdn username $rp_admin_account_name password $rp_admin_account_password flash_enabled flash_path /mnt"
+			if [ $rp_license_file != "" ]
 			then
-				cmd="$cmd license_file $rlec_license_file'"
+				cmd="$cmd license_file $rp_license_file'"
 			else
 				cmd="$cmd'"
 			fi
@@ -183,7 +183,7 @@ do
 		fi
 	else
         #add-cluster on non-first node
-        cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'ifconfig | grep 10.0.0. | cut -d\":\" -f 2 | cut -d\" \" -f 1'"
+        cmd="ssh -p $i $rp_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'ifconfig | grep 10.0.0. | cut -d\":\" -f 2 | cut -d\" \" -f 1'"
         echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
         node_ip=$(eval $cmd)  
         echo $info_color"INFO"$no_color": NODE IP: $node_ip"
@@ -191,21 +191,21 @@ do
 		if [ $data_disk_count -gt 0 ]
 		then 
 			#execute permission change script
-			cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo chmod 755 /datadisks/disk1'"
+			cmd="ssh -p $i $rp_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo chmod 755 /datadisks/disk1'"
 			echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
 			eval $cmd
-			cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo chown redislabs:redislabs /datadisks/disk1'"
+			cmd="ssh -p $i $rp_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo chown redislabs:redislabs /datadisks/disk1'"
 			echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
 			eval $cmd
 			
 			#set data and index path to data-disk location
 			echo $info_color"INFO"$no_color": RUNNING CLUSTER-INIT with PERSISTED STORAGE"
-			cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo /opt/redislabs/bin/rladmin cluster join username $rlec_admin_account_name password $rlec_admin_account_password nodes $first_node_ip persistent_path /datadisks/disk1 flash_enabled flash_path /mnt'"
+			cmd="ssh -p $i $rp_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo /opt/redislabs/bin/rladmin cluster join username $rp_admin_account_name password $rp_admin_account_password nodes $first_node_ip persistent_path /datadisks/disk1 flash_enabled flash_path /mnt'"
 			echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
 			eval $cmd
 		else
 			echo $info_color"INFO"$no_color": RUNNING CLUSTER-INIT with EPHEMERAL STORAGE"
-			cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo /opt/redislabs/bin/rladmin cluster join username $rlec_admin_account_name password $rlec_admin_account_password nodes $first_node_ip flash_enabled flash_path /mnt'"
+			cmd="ssh -p $i $rp_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo /opt/redislabs/bin/rladmin cluster join username $rp_admin_account_name password $rp_admin_account_password nodes $first_node_ip flash_enabled flash_path /mnt'"
 			echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
 			eval $cmd
 		fi
@@ -217,20 +217,20 @@ echo $info_color"INFO"$no_color": SETUP COMPLETE!"
 echo $info_color"##############################################################################"$no_color
 if [ $disable_jumpbox -ne 1 ]
     then
-		echo $info_color"INFO"$no_color": Connect to Jumpbox and Open Browser to RLEC Web Console at  https://"$first_node_ip":8443. Login with RLEC account name and password below."
+		echo $info_color"INFO"$no_color": Connect to Jumpbox and Open Browser to Redis Pack Web Console at  https://"$first_node_ip":8443. Login with Redis Pack account name and password below."
 		echo $info_color"INFO"$no_color": To Connect to the Jumpbox:"
 		echo $info_color"INFO"$no_color": JUMPBOX VM:" $service_name".cloudapp.net at RDP Port 3398 " 
 		echo $info_color"INFO"$no_color": JUMPBOX VM Account Name:" $jumpbox_vm_admin_account_name
 		echo $info_color"INFO"$no_color": JUMPBOX VM Account Password:" $jumpbox_vm_admin_account_password
 	else
-		echo $info_color"INFO"$no_color": Recommended: Use Another VM within the same vnet name ($vnet_name) and Open Browser to RLEC Web Console at https://"$first_node_ip":8443. Login with RLEC account name and password below."
-		echo $info_color"INFO"$no_color": NOT Recommended: Expose 8443 and Open Browser to RLEC Web Console at  https://"$service_name".cloudapp.net:8443. Login with RLEC account name and password below."
+		echo $info_color"INFO"$no_color": Recommended: Use Another VM within the same vnet name ($vnet_name) and Open Browser to Redis Pack Web Console at https://"$first_node_ip":8443. Login with Redis Pack account name and password below."
+		echo $info_color"INFO"$no_color": NOT Recommended: Expose 8443 and Open Browser to Redis Pack Web Console at  https://"$service_name".cloudapp.net:8443. Login with Redis Pack account name and password below."
 fi
-echo $info_color"INFO"$no_color": RLEC Admin Account:" $rlec_admin_account_name
-echo $info_color"INFO"$no_color": RLEC Admin Password:" $rlec_admin_account_password
+echo $info_color"INFO"$no_color": Redis Pack Admin Account:" $rp_admin_account_name
+echo $info_color"INFO"$no_color": Redis Pack Admin Password:" $rp_admin_account_password
 echo $info_color"##############################################################################"$no_color
-echo $info_color"INFO"$no_color": To SSH Into Cluster Nodes: ssh -p <port> " $rlec_vm_admin_account_name"@$service_name.cloudapp.net -i "$vm_auth_cert_private" -o StrictHostKeyChecking=no" 
-echo $info_color"INFO"$no_color": RLEC VM Account Name:" $rlec_vm_admin_account_name
+echo $info_color"INFO"$no_color": To SSH Into Cluster Nodes: ssh -p <port> " $rp_vm_admin_account_name"@$service_name.cloudapp.net -i "$vm_auth_cert_private" -o StrictHostKeyChecking=no" 
+echo $info_color"INFO"$no_color": Redis Pack VM Account Name:" $rp_vm_admin_account_name
 echo $info_color"##############################################################################"$no_color
 echo $info_color"INFO"$no_color": RUN ./delete_azure_cluster.sh TO CLEANUP THE CLUSTER"
 

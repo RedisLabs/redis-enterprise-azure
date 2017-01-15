@@ -3,7 +3,7 @@
 Simple automated setup for a redis labs enterprise cluster (RLEC) deployment on Azure. Ideal for build up and teardown of test environments or functional tests. Works with RLEC v4.4 or later. 
 
 ## Getting Started
-- Choose the correct RLEC version to deploy for your environment in settings.sh under ````rlec_download```` and ````rlec_binaries````
+- Choose the correct RLEC version to deploy for your environment in settings.sh under ````rp_download```` and ````rp_binaries````
 - Provide Azure subscription and account details in the settings.sh under ````azure_account```` and ````azure_subscription_id````
 - Provide the ceritificates for vm provisioning in settings.sh under ````vm_auth_cert_public```` and ````vm_auth_cert_private````
 - Run ````create_azure_cluster.sh```` 
@@ -24,19 +24,19 @@ NOTE: The scripts will fail by default as Azure subscription and account informa
 
 **RLEC Settings:**
 ````
-    rlec_total_nodes: set the number of nodes in the cluster.
+    rp_total_nodes: set the number of nodes in the cluster.
     
-    rlec_download: link to the download URL for ubuntu 14.04 version RLEC. 
+    rp_download: link to the download URL for ubuntu 14.04 version RLEC. 
     
-    rlec_binary: name of the binary for RLEC. used to help rename the downloaded 
+    rp_binary: name of the binary for RLEC. used to help rename the downloaded 
     binary. 
     
-    rlec_license_file: reference to the local rlec license file in the form a of a local path "~/path_to_rlec_license_file.txt"
+    rp_license_file: reference to the local rp license file in the form a of a local path "~/path_to_rp_license_file.txt"
 
-    rlec_admin_account_name: database administration account for RLEC cluster. 
+    rp_admin_account_name: database administration account for RLEC cluster. 
     TODO: change this value before use. 
     
-    rlec_admin_account_password: database administration password for RLEC 
+    rp_admin_account_password: database administration password for RLEC 
     cluster. TODO: change this value before use.  
 ````
 
@@ -91,11 +91,11 @@ NOTE: The scripts will fail by default as Azure subscription and account informa
 
 **Azure RLEC Nodes VM Config Settings:**
 ````
-    rlec_vm_image_name: ubuntu OS image to use on azure for RLEC cluster nodes.
+    rp_vm_image_name: ubuntu OS image to use on azure for RLEC cluster nodes.
     
-    rlec_vm_sku: vm sku to use on azure for RLEC cluster node vms.
+    rp_vm_sku: vm sku to use on azure for RLEC cluster node vms.
     
-    rlec_vm_admin_account_name: account name for RLEC node vm admin. certs 
+    rp_vm_admin_account_name: account name for RLEC node vm admin. certs 
     are used for password-less logins.
 ````
 **Misc Config**

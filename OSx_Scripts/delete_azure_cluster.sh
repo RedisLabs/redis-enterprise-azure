@@ -63,23 +63,23 @@ if [ $disable_jumpbox -ne 1 ]
 fi
 
     #loop to clean up all nodes.
-    for ((i=1; i<=$rlec_total_nodes; i++))
+    for ((i=1; i<=$rp_total_nodes; i++))
     do
         echo $info_color"INFO"$no_color": RUNNING COMMAND: azure vm delete "$vm_name_prefix"-"$i" -q"
         if [ $enable_fast_delete == 1 ]
         then
             yes_no='y'
         else
-            echo $warning_color"WARNING"$no_color": CONFIRM DELETING RLEC NODE: "$vm_name_prefix"-"$i" [y/n]"
+            echo $warning_color"WARNING"$no_color": CONFIRM DELETING Redis Pack NODE: "$vm_name_prefix"-"$i" [y/n]"
             read yes_no
         fi
             
         if [ $yes_no == 'y' ]
         then
-            echo $info_color"INFO"$no_color": DELETING RLEC NODE: "$vm_name_prefix"-"$i
+            echo $info_color"INFO"$no_color": DELETING Redis Pack NODE: "$vm_name_prefix"-"$i
             azure vm delete $vm_name_prefix-$i -q
         else
-            echo $info_color"INFO"$no_color": SKIPPED CLEANUP STEP. DID NOT DELETE RLEC NODE: "$vm_name_prefix"-"$i
+            echo $info_color"INFO"$no_color": SKIPPED CLEANUP STEP. DID NOT DELETE Redis Pack NODE: "$vm_name_prefix"-"$i
         fi
     done
 

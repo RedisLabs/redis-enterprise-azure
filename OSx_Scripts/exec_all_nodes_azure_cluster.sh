@@ -36,21 +36,21 @@ RESET=`tput sgr0`
 #display help if not commandline parameter
 if [[ $1 == "" ]]
 then
-  echo "Provide a command to run on all nodes on the RLEC cluster."
+  echo "Provide a command to run on all nodes on the Redis Pack cluster."
   echo ""
   echo "Following example confirms there is a listener active on port 8091 across all nodes"
   echo "  ./exec_all_nodes_azure_cluster.sh 'netstat -a | grep 8443' " 
   exit 0
 fi
 
-for ((i=1; i<=$rlec_total_nodes; i++))
+for ((i=1; i<=$rp_total_nodes; i++))
 do
   #exec $1 the command passed in
-  cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no '$1' "
+  cmd="ssh -p $i $rp_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no '$1' "
   node_output=$(eval $cmd)
   
   #get node ip address
-  cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'ifconfig | grep 10.0.0. | cut -d\":\" -f 2 | cut -d\" \" -f 1'"
+  cmd="ssh -p $i $rp_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'ifconfig | grep 10.0.0. | cut -d\":\" -f 2 | cut -d\" \" -f 1'"
   node_ip=$(eval $cmd)
 
   echo "################################## NODE: $node_ip - START ##################################"

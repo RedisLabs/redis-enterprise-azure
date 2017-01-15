@@ -25,18 +25,18 @@
 # Script Name: settings.sh
 # Author: Cihan Biyikoglu - github:(cihanb)
 
-##rlec settings
+##rp settings
 #total nodes in cluster
-rlec_total_nodes=3
-#ubuntu 14 image for rlec server. version can be 4.0 or later
-rlec_download="https://s3.amazonaws.com/rlec-downloads/4.3.0/redislabs-4.3.0-230-trusty-amd64.tar"
-rlec_binary="redislabs-4.3.0-230-trusty-amd64.tar"
-#add a reference to the local rlec license file if one exists in the form of a local file reference "~/path_to_rlec_license_file.txt".
-rlec_license_file=""
+rp_total_nodes=3
+#ubuntu 14 image for rp server. version can be 4.0 or later
+rp_download="https://s3.amazonaws.com/rp-downloads/4.3.0/redislabs-4.3.0-230-trusty-amd64.tar"
+rp_binary="redislabs-4.3.0-230-trusty-amd64.tar"
+#add a reference to the local rp license file if one exists in the form of a local file reference "~/path_to_rp_license_file.txt".
+rp_license_file=""
 #TODO: change this username
-rlec_admin_account_name="administrator@redislabs.com"
+rp_admin_account_name="administrator@redislabs.com"
 #TODO: change this password
-rlec_admin_account_password="password"
+rp_admin_account_password="password"
 
 
 ##azure settings
@@ -47,11 +47,11 @@ azure_subscription_id="00000000-0000-0000-0000-000000000000"
 vm_auth_cert_public="~/.ssh/id_rsa.pub"
 vm_auth_cert_private="~/.ssh_id_rsa"
 #prefix to use for the VM name for all nodes 
-vm_name_prefix="rlec"
+vm_name_prefix="rp"
 #vnet name to keeps azure vms in the same subnet 
-vnet_name="rlec-vnet1" 
+vnet_name="rp-vnet1" 
 #azure service name for all nodes
-service_name="rlec-service"
+service_name="rp-service"
 #region where to provision all nodes
 region="'west US'"
 #number of data-disks to attach - check the max data-disk allowed on each SKU
@@ -61,7 +61,7 @@ data_disk_size=1023
 
 
 ##jumpbox settings
-#disable jumpbox: set to 1 to diable jumpbox. jumpbox is provisioned for security reasons. you may need to open 8443 and other rlec server ports to the public internet without it. 
+#disable jumpbox: set to 1 to diable jumpbox. jumpbox is provisioned for security reasons. you may need to open 8443 and other rp server ports to the public internet without it. 
 disable_jumpbox=0
 #image to use for the jumpbox. using windows server by default
 jumpbox_image_name="a699494373c04fc0bc8f2bb1389d6106__Windows-Server-2012-Datacenter-20160329-en.us-127GB.vhd"
@@ -74,11 +74,11 @@ jumpbox_vm_admin_account_password="redisl@bs123"
 
 ##cluster settings
 #ubuntu OS image to use on azure
-rlec_vm_image_name="b39f27a8b8c64d52b05eac6a62ebad85__Ubuntu-14_04_4-LTS-amd64-server-20160314-en-us-30GB"
+rp_vm_image_name="b39f27a8b8c64d52b05eac6a62ebad85__Ubuntu-14_04_4-LTS-amd64-server-20160314-en-us-30GB"
 #cluster vm sku to use. Standard_D2 can be used as the minimum HW. 
-rlec_vm_sku="Standard_D2"
-#rlec cluster vm admin account name
-rlec_vm_admin_account_name="rl_vmadmin"
+rp_vm_sku="Standard_D2"
+#rp cluster vm admin account name
+rp_vm_admin_account_name="rl_vmadmin"
 
 #misc settings
 #this will enable removing the .ssh/known_hosts file under MacOS. The file gets in the way of reprovisioning the same node names for the cluster.

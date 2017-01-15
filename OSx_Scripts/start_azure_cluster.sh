@@ -42,7 +42,7 @@ then
 
 
     #loop to clean up all nodes.
-    for ((i=1; i<=$rlec_total_nodes; i++))
+    for ((i=1; i<=$rp_total_nodes; i++))
     do
         echo "CMD: azure vm start "$vm_name_prefix"-"$i" "
         if [ $enable_fast_start == 1 ]
@@ -55,10 +55,10 @@ then
             
         if [ $yes_no == 'y' ]
         then
-            echo "STARTING RLEC NODE: "$vm_name_prefix"-"$i
+            echo "STARTING Redis Pack NODE: "$vm_name_prefix"-"$i
             azure vm start $vm_name_prefix-$i
         else
-            echo "SKIPPED START STEP. DID NOT START RLEC NODE: "$vm_name_prefix"-"$i
+            echo "SKIPPED START STEP. DID NOT START Redis Pack NODE: "$vm_name_prefix"-"$i
         fi
     done
 
