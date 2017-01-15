@@ -52,8 +52,16 @@ fi
 
 for ((i=1; i<=$rlec_total_nodes; i++))
 do
+
 	#create vm
+	echo ""
+	echo ""
+	echo ""
+	echo "##################################################################################"
+	echo "##################################################################################"
+	echo ""
 	echo "INFO: Working on instance: $i"
+	
     cmd="azure vm create -l $region -z $rlec_vm_sku -e $i -n $vm_name_prefix-$i -w $vnet_name -c $service_name -t $vm_auth_cert_public -g $rlec_vm_admin_account_name -P -s $azure_subscription_id $rlec_vm_image_name"
     echo "INFO: RUNNING:" $cmd 
     eval $cmd
@@ -113,6 +121,14 @@ do
 	eval $cmd
 	sleep 30
 
+	#execute permission for SSD drive
+	cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo chmod 755 /mnt'"
+	echo "INFO: RUNNING:" $cmd
+	eval $cmd
+	cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo chown redislabs:redislabs /mnt'"
+	echo "INFO: RUNNING:" $cmd
+	eval $cmd
+
 	#init-cluster on first node
 	if [ $i -eq 1 ]
 	then 
@@ -142,9 +158,9 @@ do
 			echo "INFO: RUNNING:" $cmd
 			eval $cmd
 			
-			#set data and index path to data-disk location
+			#set data path to data-disk location
 			echo "##### RUNNING CLUSTER-INIT with persisted path #####"
-			cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo /opt/redislabs/bin/rladmin cluster create name $rlec_fqdn username $rlec_admin_account_name password $rlec_admin_account_password persistent_path /datadisks/disk1"
+			cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo /opt/redislabs/bin/rladmin cluster create name $rlec_fqdn username $rlec_admin_account_name password $rlec_admin_account_password persistent_path /datadisks/disk1 flash_enabled flash_path /mnt"
 			if [ $rlec_license_file != "" ]
 			then
 				cmd="$cmd license_file $rlec_license_file'"
@@ -155,7 +171,7 @@ do
 			eval $cmd
 		else
 			echo "##### RUNNING CLUSTER-INIT with ephemeral path #####"
-			cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo /opt/redislabs/bin/rladmin cluster create name $rlec_fqdn username $rlec_admin_account_name password $rlec_admin_account_password"
+			cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo /opt/redislabs/bin/rladmin cluster create name $rlec_fqdn username $rlec_admin_account_name password $rlec_admin_account_password flash_enabled flash_path /mnt"
 			if [ $rlec_license_file != "" ]
 			then
 				cmd="$cmd license_file $rlec_license_file'"
@@ -184,12 +200,12 @@ do
 			
 			#set data and index path to data-disk location
 			echo "##### RUNNING CLUSTER-INIT with persisted path #####"
-			cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo /opt/redislabs/bin/rladmin cluster join username $rlec_admin_account_name password $rlec_admin_account_password nodes $first_node_ip persistent_path /datadisks/disk1'"
+			cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo /opt/redislabs/bin/rladmin cluster join username $rlec_admin_account_name password $rlec_admin_account_password nodes $first_node_ip persistent_path /datadisks/disk1 flash_enabled flash_path /mnt'"
 			echo "INFO: RUNNING:" $cmd
 			eval $cmd
 		else
 			echo "##### RUNNING CLUSTER-INIT with ephemeral path #####"
-			cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo /opt/redislabs/bin/rladmin cluster join username $rlec_admin_account_name password $rlec_admin_account_password nodes $first_node_ip'"
+			cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo /opt/redislabs/bin/rladmin cluster join username $rlec_admin_account_name password $rlec_admin_account_password nodes $first_node_ip flash_enabled flash_path /mnt'"
 			echo "INFO: RUNNING:" $cmd
 			eval $cmd
 		fi
