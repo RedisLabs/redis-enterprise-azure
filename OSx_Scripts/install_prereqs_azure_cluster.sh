@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
-# Script Name: install_prereqs.sh
+# Script Name: install_prereqs_azure_cluster.sh
 # Author: Cihan Biyikoglu - github:(cihanb)
 
 brew install node

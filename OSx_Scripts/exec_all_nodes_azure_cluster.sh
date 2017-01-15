@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
-# Script Name: create_azure_cluster.sh
+# Script Name: exec_all_nodes_azure_cluster.sh
 # Author: Cihan Biyikoglu - github:(cihanb)
 
 #read settings
