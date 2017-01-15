@@ -61,7 +61,7 @@ do
 	echo "##################################################################################"
 	echo ""
 	echo "INFO: Working on instance: $i"
-	
+	echo ""
     cmd="azure vm create -l $region -z $rlec_vm_sku -e $i -n $vm_name_prefix-$i -w $vnet_name -c $service_name -t $vm_auth_cert_public -g $rlec_vm_admin_account_name -P -s $azure_subscription_id $rlec_vm_image_name"
     echo "INFO: RUNNING:" $cmd 
     eval $cmd
