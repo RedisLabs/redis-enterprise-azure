@@ -91,3 +91,8 @@ enable_fast_restart=0
 enable_fast_start=0
 #enable fast shutdown will supress confirmation on shutdowns of each VM. do this only if you are certain shutdown will not harm your existing VMs and you have tried the script multiple times.
 enable_fast_shutdown=0
+#print colors
+info_color="\033[1;32m"
+warning_color="\033[0;32m"
+error_color="\033[0;31m"
+no_color="\033[0m"

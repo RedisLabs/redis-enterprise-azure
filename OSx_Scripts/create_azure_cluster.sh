@@ -39,14 +39,18 @@ azure config mode asm
 azure login -u $azure_account
 
 #create vnet with large vm count - 1024
-azure network vnet create --vnet $vnet_name -l "west US" -e 10.0.0.1 -m 1024
+echo $info_color"INFO"$no_color": CREATE VNET: creating vnet with large vm count. This command may fail if you already have the vnet with the same name created in your account."
+cmd="azure network vnet create --vnet $vnet_name -l \"west US\" -e 10.0.0.1 -m 1024"
+echo $info_color"INFO"$no_color": RUNNING COMMAND: azure network vnet create --vnet $vnet_name -l \"west US\" -e 10.0.0.1 -m 1024"
+eval $cmd
+
 
 #create jumpbox vm
 if [ $disable_jumpbox -ne 1 ]
     then
-	echo "INFO: Working on jumpbox instance."
+	echo $info_color"INFO"$no_color": Working on jumpbox instance."
     cmd="azure vm create -l $region -z $jumpbox_vm_sku -n $vm_name_prefix-jumpbox -w $vnet_name -c $service_name -r -g $jumpbox_vm_admin_account_name -p $jumpbox_vm_admin_account_password -s $azure_subscription_id $jumpbox_image_name"
-    echo "INFO: RUNNING:" $cmd 
+    echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd 
     eval $cmd
 fi
 
@@ -55,15 +59,11 @@ do
 
 	#create vm
 	echo ""
-	echo ""
-	echo ""
-	echo "##################################################################################"
-	echo "##################################################################################"
-	echo ""
-	echo "INFO: Working on instance: $i"
+	echo $info_color"##############################################################################"$no_color
+	echo $info_color"INFO"$no_color": WORKING ON VM INSTANCE: $i"
 	echo ""
     cmd="azure vm create -l $region -z $rlec_vm_sku -e $i -n $vm_name_prefix-$i -w $vnet_name -c $service_name -t $vm_auth_cert_public -g $rlec_vm_admin_account_name -P -s $azure_subscription_id $rlec_vm_image_name"
-    echo "INFO: RUNNING:" $cmd 
+    echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd 
     eval $cmd
     sleep 120
 	
@@ -73,78 +73,78 @@ do
 		for ((j=1; j<=$data_disk_count; j++))
 		do 
 			#attach data-disks to vm
-			echo "INFO: Working on data-disks: $j"
+			echo $info_color"INFO"$no_color": WORKING ON PERSISTED DATA DISK: $j"
 			cmd="azure vm disk attach-new -c ReadOnly -s $azure_subscription_id $vm_name_prefix-$i $data_disk_size"
-			echo "INFO: RUNNING:" $cmd 
+			echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd 
 			eval $cmd
 		done
 
 		#set up RAID0 on data-disks
-		echo "INFO: Establishing RAID0 on /datadisks/disk1"
+		echo $info_color"INFO"$no_color": ESTABLISHING RAID0 ON /datadisks/disk1"
 		#download script
 		cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo wget \"https://raw.githubusercontent.com/redislabs/rlec-azure/master/OSx_Scripts/vm-disk-utils-0.1.sh\"'"
-		echo "INFO: RUNNING:" $cmd
+		echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
 		eval $cmd
 		#chmod for script execution
 		cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo chmod 555 vm-disk-utils-0.1.sh'"
-		echo "INFO: RUNNING:" $cmd
+		echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
 		eval $cmd
 		
 		#install mdadm
 		cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo env DEBIAN_FRONTEND=noninteractive apt-get -y install mdadm'"
-		echo "INFO: RUNNING:" $cmd
+		echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
 		eval $cmd
 		
 		#execute RAID disk setup script
 		cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo ./vm-disk-utils-0.1.sh -b /datadisks -s'"
-		echo "INFO: RUNNING:" $cmd
+		echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
 		eval $cmd
 	fi
 
 	#download RLEC
-	echo "INFO: Downloading RLEC"
+	echo $info_color"INFO"$no_color": DOWNLOADING Redis Pack"
 	cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo wget \"$rlec_download\" -O $rlec_binary'"
-	echo "INFO: RUNNING:" $cmd
+	echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
 	eval $cmd
 
 	#extract RLEC
-	echo "INFO: Extracting RLEC .tar"
+	echo $info_color"INFO"$no_color": EXTRACTING Redis Pack .tar"
 	cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo tar vxf $rlec_binary'"
-	echo "INFO: RUNNING:" $cmd
+	echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
 	eval $cmd
 	sleep 30
 
 	#install RLEC
-	echo "INFO: Installing RLEC"
+	echo $info_color"INFO"$no_color": INSTALLING Redis Pack"
 	cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo ./install.sh -y'"
-	echo "INFO: RUNNING:" $cmd
+	echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
 	eval $cmd
 	sleep 30
 
 	#execute permission for SSD drive
 	cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo chmod 755 /mnt'"
-	echo "INFO: RUNNING:" $cmd
+	echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
 	eval $cmd
 	cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo chown redislabs:redislabs /mnt'"
-	echo "INFO: RUNNING:" $cmd
+	echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
 	eval $cmd
 
 	#init-cluster on first node
 	if [ $i -eq 1 ]
 	then 
         #init-cluster on first node and add-node on rest of the nodes
-		echo "INFO: ##### GETTING FIRST NODE IP #####"
+		echo $info_color"INFO"$no_color": GETTING FIRST NODE IP"
         cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'ifconfig | grep 10.0.0. | cut -d\":\" -f 2 | cut -d\" \" -f 1'"
-        echo "INFO: RUNNING:" $cmd
+        echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
         first_node_ip=$(eval $cmd)  
-        echo "INFO: FIRST NODE IP:  $first_node_ip"
+        echo $info_color"INFO"$no_color": FIRST NODE IP:  $first_node_ip"
 
 		#move license file if one exists
 		if [ $rlec_license_file != "" ]
 		then
-			echo "INFO: ##### UPLOADING LICENSE FILE #####"
+			echo $info_color"INFO"$no_color": UPLOADING LICENSE FILE"
 	        cmd="cat $rlec_license_file | ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'cat -> $rlec_license_file'"
-    	    echo "INFO: RUNNING:" $cmd
+    	    echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
 			eval $cmd
 		fi
 
@@ -152,14 +152,14 @@ do
 		then 
 			#execute permission change script
 			cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo chmod 755 /datadisks/disk1'"
-			echo "INFO: RUNNING:" $cmd
+			echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
 			eval $cmd
 			cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo chown redislabs:redislabs /datadisks/disk1'"
-			echo "INFO: RUNNING:" $cmd
+			echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
 			eval $cmd
 			
 			#set data path to data-disk location
-			echo "##### RUNNING CLUSTER-INIT with persisted path #####"
+			echo $info_color"INFO"$no_color": RUNNING CLUSTER-INIT with PERSISTED STORAGE"
 			cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo /opt/redislabs/bin/rladmin cluster create name $rlec_fqdn username $rlec_admin_account_name password $rlec_admin_account_password persistent_path /datadisks/disk1 flash_enabled flash_path /mnt"
 			if [ $rlec_license_file != "" ]
 			then
@@ -167,10 +167,10 @@ do
 			else
 				cmd="$cmd'"
 			fi
-			echo "INFO: RUNNING:" $cmd
+			echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
 			eval $cmd
 		else
-			echo "##### RUNNING CLUSTER-INIT with ephemeral path #####"
+			echo $info_color"INFO"$no_color": RUNNING CLUSTER-INIT with EPHEMERAL STORAGE"
 			cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo /opt/redislabs/bin/rladmin cluster create name $rlec_fqdn username $rlec_admin_account_name password $rlec_admin_account_password flash_enabled flash_path /mnt"
 			if [ $rlec_license_file != "" ]
 			then
@@ -178,59 +178,59 @@ do
 			else
 				cmd="$cmd'"
 			fi
-			echo "INFO: RUNNING:" $cmd
+			echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
 			eval $cmd
 		fi
 	else
         #add-cluster on non-first node
         cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'ifconfig | grep 10.0.0. | cut -d\":\" -f 2 | cut -d\" \" -f 1'"
-        echo "INFO: RUNNING:" $cmd
+        echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
         node_ip=$(eval $cmd)  
-        echo "INFO: NODE IP: $node_ip"
+        echo $info_color"INFO"$no_color": NODE IP: $node_ip"
 		
 		if [ $data_disk_count -gt 0 ]
 		then 
 			#execute permission change script
 			cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo chmod 755 /datadisks/disk1'"
-			echo "INFO: RUNNING:" $cmd
+			echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
 			eval $cmd
 			cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo chown redislabs:redislabs /datadisks/disk1'"
-			echo "INFO: RUNNING:" $cmd
+			echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
 			eval $cmd
 			
 			#set data and index path to data-disk location
-			echo "##### RUNNING CLUSTER-INIT with persisted path #####"
+			echo $info_color"INFO"$no_color": RUNNING CLUSTER-INIT with PERSISTED STORAGE"
 			cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo /opt/redislabs/bin/rladmin cluster join username $rlec_admin_account_name password $rlec_admin_account_password nodes $first_node_ip persistent_path /datadisks/disk1 flash_enabled flash_path /mnt'"
-			echo "INFO: RUNNING:" $cmd
+			echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
 			eval $cmd
 		else
-			echo "##### RUNNING CLUSTER-INIT with ephemeral path #####"
+			echo $info_color"INFO"$no_color": RUNNING CLUSTER-INIT with EPHEMERAL STORAGE"
 			cmd="ssh -p $i $rlec_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo /opt/redislabs/bin/rladmin cluster join username $rlec_admin_account_name password $rlec_admin_account_password nodes $first_node_ip flash_enabled flash_path /mnt'"
-			echo "INFO: RUNNING:" $cmd
+			echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
 			eval $cmd
 		fi
 		
 	fi
 done
 
-echo "INFO: SETUP COMPLETE!"
-echo "##############################################################################"
+echo $info_color"INFO"$no_color": SETUP COMPLETE!"
+echo $info_color"##############################################################################"$no_color
 if [ $disable_jumpbox -ne 1 ]
     then
-		echo "INFO: Connect to Jumpbox and Open Browser to RLEC Web Console at  https://"$first_node_ip":8443. Login with RLEC account name and password below."
-		echo "INFO: To Connect to the Jumpbox:"
-		echo "INFO: JUMPBOX VM:" $service_name".cloudapp.net at RDP Port 3398 " 
-		echo "INFO: JUMPBOX VM Account Name:" $jumpbox_vm_admin_account_name
-		echo "INFO: JUMPBOX VM Account Password:" $jumpbox_vm_admin_account_password
+		echo $info_color"INFO"$no_color": Connect to Jumpbox and Open Browser to RLEC Web Console at  https://"$first_node_ip":8443. Login with RLEC account name and password below."
+		echo $info_color"INFO"$no_color": To Connect to the Jumpbox:"
+		echo $info_color"INFO"$no_color": JUMPBOX VM:" $service_name".cloudapp.net at RDP Port 3398 " 
+		echo $info_color"INFO"$no_color": JUMPBOX VM Account Name:" $jumpbox_vm_admin_account_name
+		echo $info_color"INFO"$no_color": JUMPBOX VM Account Password:" $jumpbox_vm_admin_account_password
 	else
-		echo "INFO: Recommended: Use Another VM within the same vnet name ($vnet_name) and Open Browser to RLEC Web Console at https://"$first_node_ip":8443. Login with RLEC account name and password below."
-		echo "INFO: NOT Recommended: Expose 8443 and Open Browser to RLEC Web Console at  https://"$service_name".cloudapp.net:8443. Login with RLEC account name and password below."
+		echo $info_color"INFO"$no_color": Recommended: Use Another VM within the same vnet name ($vnet_name) and Open Browser to RLEC Web Console at https://"$first_node_ip":8443. Login with RLEC account name and password below."
+		echo $info_color"INFO"$no_color": NOT Recommended: Expose 8443 and Open Browser to RLEC Web Console at  https://"$service_name".cloudapp.net:8443. Login with RLEC account name and password below."
 fi
-echo "INFO: RLEC Admin Account:" $rlec_admin_account_name
-echo "INFO: RLEC Admin Password:" $rlec_admin_account_password
-echo "##############################################################################"
-echo "INFO: To SSH Into Cluster Nodes: ssh -p <port> " $rlec_vm_admin_account_name"@$service_name.cloudapp.net -i "$vm_auth_cert_private" -o StrictHostKeyChecking=no" 
-echo "INFO: RLEC VM Account Name:" $rlec_vm_admin_account_name
-echo "##############################################################################"
-echo "INFO: RUN ./delete_azure_cluster.sh TO CLEANUP THE CLUSTER"
+echo $info_color"INFO"$no_color": RLEC Admin Account:" $rlec_admin_account_name
+echo $info_color"INFO"$no_color": RLEC Admin Password:" $rlec_admin_account_password
+echo $info_color"##############################################################################"$no_color
+echo $info_color"INFO"$no_color": To SSH Into Cluster Nodes: ssh -p <port> " $rlec_vm_admin_account_name"@$service_name.cloudapp.net -i "$vm_auth_cert_private" -o StrictHostKeyChecking=no" 
+echo $info_color"INFO"$no_color": RLEC VM Account Name:" $rlec_vm_admin_account_name
+echo $info_color"##############################################################################"$no_color
+echo $info_color"INFO"$no_color": RUN ./delete_azure_cluster.sh TO CLEANUP THE CLUSTER"
 
