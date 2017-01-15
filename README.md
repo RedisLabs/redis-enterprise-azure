@@ -1,4 +1,4 @@
-# Automated Testing Redis Enterprise Pack (Redis<sup>e</sup> Pack) on Azure 
+# Automated Deployment of Redis Enterprise Pack (Redis<sup>e</sup> Pack) on Azure 
 
 Simple automated setup for a Redis Enterprise Pack (Redis<sup>e</sup> Pack) deployment on Azure. Ideal for build up and teardown of test environments or functional tests. Works with Redis<sup>e</sup> Pack v4.4 or later. 
 
