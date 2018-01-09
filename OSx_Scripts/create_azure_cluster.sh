@@ -26,7 +26,7 @@
 # Author: Cihan Biyikoglu - github:(cihanb)
 
 #read settings
-source ./my_settings.sh
+source ./settings.sh
 
 #may need to remove known hosts file if exists.
 if [ $remove_known_hosts -eq 1 ]

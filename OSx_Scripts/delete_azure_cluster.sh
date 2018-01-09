@@ -26,7 +26,7 @@
 # Author: Cihan Biyikoglu - github:(cihanb)
 
 #read settings
-source ./my_settings.sh
+source ./settings.sh
 
 #warning
 echo $warning_color"WARNING"$no_color": This will wipe out your cluster nodes, jumpbox and delete all your data on VMs starting with the $vm_name_prefix prefix. vnet $vnet_name will also be cleaned up if no other node on the same vnet remains. [y/n]"

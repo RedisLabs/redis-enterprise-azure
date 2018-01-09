@@ -26,7 +26,7 @@
 # Author: Cihan Biyikoglu - github:(cihanb)
 
 #read settings
-source ./my_settings.sh
+source ./settings.sh
 
 #warning
 printf "WARNING: This will start your cluster nodes starting with the $vm_name_prefix prefix. [y/n] "
