@@ -29,8 +29,8 @@
 #total nodes in cluster
 rp_total_nodes=3
 #ubuntu 14 image for rp server. version can be 4.0 or later
-rp_download="https://s3.amazonaws.com/rp-downloads/4.3.0/redislabs-4.3.0-230-trusty-amd64.tar"
-rp_binary="redislabs-4.3.0-230-trusty-amd64.tar"
+rp_download="https://s3.amazonaws.com/rlec-downloads/5.0.0/redispack-5.0.0-31-trusty-amd64.tar"
+rp_binary="redispack-5.0.0-31-trusty-amd64.tar"
 #add a reference to the local rp license file if one exists in the form of a local file reference "~/path_to_rp_license_file.txt".
 rp_license_file=""
 #TODO: change this username
