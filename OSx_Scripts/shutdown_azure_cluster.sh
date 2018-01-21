@@ -26,7 +26,7 @@
 # Author: Cihan Biyikoglu - github:(cihanb)
 
 #read settings
-source ./settings.sh
+source ./my_private_settings.sh
 
 #warning
 printf "WARNING: This will shutdown your cluster nodes starting with the $vm_name_prefix prefix. [y/n] "
