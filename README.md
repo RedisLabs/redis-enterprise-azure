@@ -3,13 +3,19 @@
 Simple automated setup for a Redis Enterprise Pack deployment on Azure. Ideal for build up and teardown of test environments or functional tests. Works with Redis Enterprise Pack v4.4 or later. 
 
 ## Getting Started
-- Choose the correct Redis Enterprise Pack version to deploy for your environment in settings.sh under ````rp_download```` and ````rp_binaries````
-- Provide Azure subscription and account details in the settings.sh under ````azure_account```` and ````azure_subscription_id````
-- Provide the ceritificates for vm provisioning in settings.sh under ````vm_auth_cert_public```` and ````vm_auth_cert_private````
-- Run ````create_azure_cluster.sh```` 
-- For teardown use delete_azure_cluster.sh to destroy the cluster.
+1. Copy "settings.sh" to "my_private_settings.sh". "my_private_settings.sh" file loads the settings used for the automated cluster setup. 
+```
+cp setting.sh my_private_settings.sh
+```
+2. Choose the correct Redis Enterprise Pack version to deploy for your environment in settings.sh under ````rp_download```` and ````rp_binaries````
+3. Provide Azure subscription and account details in the settings.sh under ````azure_account```` and ````azure_subscription_id````
+4. Provide the ceritificates for vm provisioning in settings.sh under ````vm_auth_cert_public```` and ````vm_auth_cert_private````
 
-_Limitations_: TBD
+5. Run ````create_azure_cluster.sh```` to launch your Redis Enterprise Pack cluster on Azure
+6. Connect to ````https://private-ip-address:8443```` for Redis Enterprise Pack UI. [Create a redis database](https://redislabs.com/redis-enterprise-documentation/database-configuration/creating-a-new-database/) and [Connect to your Redis database](https://redislabs.com/redis-enterprise-documentation/database-configuration/creating-a-new-database/#simple-connectivity-test) using Redis Enterprise GUI.
+
+
+For teardown use ````delete_azure_cluster.sh```` to destroy the cluster.
 
 # Details
 
@@ -32,19 +38,6 @@ Scripts looks for the vm_name_prefix set in the settings file to match and delet
 enable_fast_restart, enable_fast_start, enable_fast_shutdown, is off by default. You can the settings, however make sure your prefix is unique 
 and does not match your existing VMs in your subscription. 
 
-
-## Getting Started
-
-1. Copy "settings.sh" to "my_private_settings.sh". "my_private_settings.sh" file loads the settings used for the automated cluster setup. 
-```
-cp setting.sh my_private_settings.sh
-```
-
-Seach for and set the variables marked with text "TODO" in the setting file and feed in your details.
-
-2. Run "create_azure_cluster.sh" to create Redis Enterprise Pack cluster on VMs. 
-
-3. Connect to "https://private-ip-address:8443" for Redis Enterprise Pack UI. [Create a redis database](https://redislabs.com/redis-enterprise-documentation/database-configuration/creating-a-new-database/) and [Connect to your Redis database](https://redislabs.com/redis-enterprise-documentation/database-configuration/creating-a-new-database/#simple-connectivity-test) using Redis Enterprise GUI.
 
 ## Details
 **Redis Enterprise Pack Settings:**
