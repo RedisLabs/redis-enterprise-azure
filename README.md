@@ -7,9 +7,11 @@ Simple automated setup for a Redis Enterprise Pack deployment on Azure. Ideal fo
 ```
 cp setting.sh my_private_settings.sh
 ```
-2. Choose the correct Redis Enterprise Pack version to deploy for your environment in settings.sh under ````rp_download```` and ````rp_binaries````
-3. Provide Azure subscription and account details in the settings.sh under ````azure_account```` and ````azure_subscription_id````
-4. Provide the ceritificates for vm provisioning in settings.sh under ````vm_auth_cert_public```` and ````vm_auth_cert_private````
+2. Update your settings in ````my_private_settings.sh````
+
+    a. Provide Azure subscription and account details under ````azure_account```` and ````azure_subscription_id````
+
+    b. Provide the ceritificates for vm provisioning under ````vm_auth_cert_public```` and ````vm_auth_cert_private````
 
 5. Run ````create_azure_cluster.sh```` to launch your Redis Enterprise Pack cluster on Azure
 6. Connect to ````https://private-ip-address:8443```` for Redis Enterprise Pack UI. [Create a redis database](https://redislabs.com/redis-enterprise-documentation/database-configuration/creating-a-new-database/) and [Connect to your Redis database](https://redislabs.com/redis-enterprise-documentation/database-configuration/creating-a-new-database/#simple-connectivity-test) using Redis Enterprise GUI.
