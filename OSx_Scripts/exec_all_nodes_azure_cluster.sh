@@ -26,7 +26,7 @@
 # Author: Cihan Biyikoglu - github:(cihanb)
 
 #read settings
-source ./settings.sh
+source ./my_private_settings.sh
 
 IFS=$'\r\n'
 GLOBIGNORE='*'

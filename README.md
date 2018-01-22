@@ -1,27 +1,35 @@
-# Automated Deployment of Redis Enterprise Pack (Redis<sup>e</sup> Pack) on Azure 
+# Automated Deployment of Redis Enterprise Pack (Redis Enterprise Pack) on Azure 
 
-Simple automated setup for a Redis Enterprise Pack (Redis<sup>e</sup> Pack) deployment on Azure. Ideal for build up and teardown of test environments or functional tests. Works with Redis<sup>e</sup> Pack v4.4 or later. 
+Simple automated setup for a Redis Enterprise Pack deployment on Azure. Ideal for build up and teardown of test environments or functional tests. Works with Redis Enterprise Pack v4.4 or later. 
 
 ## Getting Started
-- Choose the correct Redis<sup>e</sup> Pack version to deploy for your environment in settings.sh under ````rp_download```` and ````rp_binaries````
-- Provide Azure subscription and account details in the settings.sh under ````azure_account```` and ````azure_subscription_id````
-- Provide the ceritificates for vm provisioning in settings.sh under ````vm_auth_cert_public```` and ````vm_auth_cert_private````
-- Run ````create_azure_cluster.sh```` 
-- For teardown use delete_azure_cluster.sh to destroy the cluster.
+1. Copy "settings.sh" to "my_private_settings.sh". "my_private_settings.sh" file loads the settings used for the automated cluster setup. 
+```
+cp setting.sh my_private_settings.sh
+```
+2. Update your settings in ````my_private_settings.sh````
 
-_Limitations_: TBD
+    a. Provide Azure subscription and account details under ````azure_account```` and ````azure_subscription_id````
+
+    b. Provide the ceritificates for vm provisioning under ````vm_auth_cert_public```` and ````vm_auth_cert_private````
+
+5. Run ````create_azure_cluster.sh```` to launch your Redis Enterprise Pack cluster on Azure
+6. Connect to ````https://private-ip-address:8443```` for Redis Enterprise Pack UI. [Create a redis database](https://redislabs.com/redis-enterprise-documentation/database-configuration/creating-a-new-database/) and [Connect to your Redis database](https://redislabs.com/redis-enterprise-documentation/database-configuration/creating-a-new-database/#simple-connectivity-test) using Redis Enterprise GUI.
+
+
+For teardown use ````delete_azure_cluster.sh```` to destroy the cluster.
 
 # Details
 
 ## OSx Scripts: 
-OSx script for setting up a multi node Redis<sup>e</sup> Pack cluster on Azure VMs.
+OSx script for setting up a multi node Redis Enterprise Pack cluster on Azure VMs.
 
 ### Prerequisites
 install_prereqs.sh: Install required dependencies like node and azure-cli. Run this before your first run.
 
 ### Create Azure Cluster (create_azure_cluster.sh)
-Main script to create the VMs, download and install Redis<sup>e</sup> Pack and set up the cluster with a final rebalance. Will require you to login to your Azure account. 
-Settings will also, by default, allow a Windows Server jumpbox to be configured in the same vnet (see the vnet_name. setting above for details on vnets). The jumpbox ensures you don't expose your Redis<sup>e</sup> Pack directly to the internet. You can disable the jumpbox if you are using an existing vnet where you already have a browser to administer Redis<sup>e</sup> Pack, Or if you are simply looking to administer through the Redis<sup>e</sup> Pack commandline interface. 
+Main script to create the VMs, download and install Redis Enterprise Pack and set up the cluster with a final rebalance. Will require you to login to your Azure account. 
+Settings will also, by default, allow a Windows Server jumpbox to be configured in the same vnet (see the vnet_name. setting above for details on vnets). The jumpbox ensures you don't expose your Redis Enterprise Pack directly to the internet. You can disable the jumpbox if you are using an existing vnet where you already have a browser to administer Redis Enterprise Pack, Or if you are simply looking to administer through the Redis Enterprise Pack commandline interface. 
 
 ### Delete Azure Cluster (delete_azure_cluster.sh)
 used to clean up the jumpbox, cluster and vms. Will require you to login to your Azure account. cleanup looks for the vm_name_prefix set in the settings file to match and delete VMs. To ensure it does not do accidental deletes, enable_fast_delete is off by default. You can enable_fast_delete, however make sure your prefix is unique and does not match your existing VMs in your subscription. 
@@ -33,25 +41,22 @@ enable_fast_restart, enable_fast_start, enable_fast_shutdown, is off by default.
 and does not match your existing VMs in your subscription. 
 
 
-### Settings (settings.sh)
-settings.sh: setting file for the automated cluster setup. Seach for and investigate the variables marked with text "TODO" in the setting file before running create_ and delete_ scripts. 
-NOTE: The scripts will fail by default as Azure subscription and account information will need to be populated.
-
-**Redis<sup>e</sup> Pack Settings:**
+## Details
+**Redis Enterprise Pack Settings:**
 ````
     rp_total_nodes: set the number of nodes in the cluster.
     
-    rp_download: link to the download URL for ubuntu 14.04 version Redis<sup>e</sup> Pack. 
+    rp_download: link to the download URL for ubuntu 14.04 version Redis Enterprise Pack. 
     
-    rp_binary: name of the binary for Redis<sup>e</sup> Pack. used to help rename the downloaded 
+    rp_binary: name of the binary for Redis Enterprise Pack. used to help rename the downloaded 
     binary. 
     
     rp_license_file: reference to the local rp license file in the form a of a local path "~/path_to_rp_license_file.txt"
 
-    rp_admin_account_name: database administration account for Redis<sup>e</sup> Pack cluster. 
+    rp_admin_account_name: database administration account for Redis Enterprise Pack cluster. 
     TODO: change this value before use. 
     
-    rp_admin_account_password: database administration password for Redis<sup>e</sup> Pack 
+    rp_admin_account_password: database administration password for Redis Enterprise Pack 
     cluster. TODO: change this value before use.  
 ````
 
@@ -65,7 +70,7 @@ NOTE: The scripts will fail by default as Azure subscription and account informa
     subscription id, use "azure login -u account" +  "azure account show" to get  account and 
     subscriptionid. TODO: change this value before use.
     
-    auth_cert_public: auth public key used for provisioning the Redis<sup>e</sup> Pack nodes on 
+    auth_cert_public: auth public key used for provisioning the Redis Enterprise Pack nodes on 
     ubuntu. TODO: change this value before use. use ssh-keygen to generate the keys - public 
     and private keys. 
     
@@ -78,12 +83,12 @@ NOTE: The scripts will fail by default as Azure subscription and account informa
     unique prefix name that does not match any of the other VM names in your subscription. 
     delete_azure_cluster script deletes nodes matching this prefix. 
     
-    vnet_name: virtual network name for the Redis<sup>e</sup> Pack subnet. vnet setup is done for 
-    network communication efficiency with the Redis<sup>e</sup> Pack cluster. virtual network (vnets) 
+    vnet_name: virtual network name for the Redis Enterprise Pack subnet. vnet setup is done for 
+    network communication efficiency with the Redis Enterprise Pack cluster. virtual network (vnets) 
     enable private 10.0.*.* IPs in a single subnet for all VMs including the jumpbox.
     
     service_name: service name ensure ssh and jumpbox RDP addresses can be under a single cloud 
-    service name with different port names. jumpbox gets 3389 rdp port and all Redis<sup>e</sup> Pack 
+    service name with different port names. jumpbox gets 3389 rdp port and all Redis Enterprise Pack 
     nodes gets port 1..N for ssh. for example:
         RDP into the jumpbox: service_name.cloudapp.net:3398
         SSH into the first node: ssh -p 1 cb_vmadmin@service_name.cloudapp.net
@@ -93,7 +98,7 @@ NOTE: The scripts will fail by default as Azure subscription and account informa
 ````
     disable jumpbox: 1 to diable jumpbox. jumpbox is provisioned for security reasons. Without 
     a node within the same vnet, you end up exposing your database directly to the internet, 
-    opening Web Console (8443) and other Redis<sup>e</sup> Pack ports to the public internet. 
+    opening Web Console (8443) and other Redis Enterprise Pack ports to the public internet. 
     
     jumpbox_image_name: image to use for the jumpbox. using windows server by default
     
@@ -104,13 +109,13 @@ NOTE: The scripts will fail by default as Azure subscription and account informa
     jumpbox_vm_admin_account_password: account password for jumpbox vm admin.
 ````
 
-**Azure Redis<sup>e</sup> Pack Nodes VM Config Settings:**
+**Azure Redis Enterprise Pack Nodes VM Config Settings:**
 ````
-    rp_vm_image_name: ubuntu OS image to use on azure for Redis<sup>e</sup> Pack cluster nodes.
+    rp_vm_image_name: ubuntu OS image to use on azure for Redis Enterprise Pack cluster nodes.
     
-    rp_vm_sku: vm sku to use on azure for Redis<sup>e</sup> Pack cluster node vms.
+    rp_vm_sku: vm sku to use on azure for Redis Enterprise Pack cluster node vms.
     
-    rp_vm_admin_account_name: account name for Redis<sup>e</sup> Pack node vm admin. certs 
+    rp_vm_admin_account_name: account name for Redis Enterprise Pack node vm admin. certs 
     are used for password-less logins.
 ````
 **Misc Config**
