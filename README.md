@@ -1,9 +1,19 @@
-# Automated Deployment of Redis Enterprise Pack (Redis Enterprise Pack) on Azure 
+# Automated Deployment of Redis Enterprise Software on Azure 
+__*Note:If you are looking for a managed Redis service on Azure visit [Redis Enterprise Cloud](https://redislabs.com/redis-enterprise/cloud/) by Redis Labs - Home of Redis*__
 
-Simple automated setup for a Redis Enterprise Pack deployment on Azure. Ideal for build up and teardown of test environments or functional tests. Works with Redis Enterprise Pack v4.4 or later. 
+Simple automated setup for a Redis Enterprise Software deployment on Azure. Ideal for build up and teardown of test environments or development environments. Works with [Redis Enterprise Software](https://redislabs.com/redis-enterprise/software/downloads/) v4.4 or later and ```azure-cli 2.0```
 
-## Getting Started
-1. Copy "settings.sh" to "my_private_settings.sh". "my_private_settings.sh" file loads the settings used for the automated cluster setup. 
+## What is Redis Enterprise?
+[__Redis Enterprise Pack__](https://redislabs.com/products/redis-pack/) is enterprise grade, distributed, in-memory NoSQL database server, fully compatible with open source Redis by Redis Labs. Redis Enterprise Pack extends open source Redis and delivers stable high performance, zero-downtime linear scaling and high availability, with significant operational savings.
+
+**_Note: Open source Redis applications transparently work against Redis Enterprise Pack. Simply change your connections to point at Redis Enterprise Pack database endpoint._**
+
+Redis Enterprise Pack can be deployed to use both RAM and Flash drives such as SSDs for data processing. See [Redis on Flash](https://redislabs.com/products/redis-pack/flash-memory/)) for details. Redis Enterprise Pack can also support active-active geo-distributed applications with [Redis CRDTs](https://redislabs.com/redis-enterprise-documentation/concepts-architecture/intercluster-replication/)
+
+![RP Architecture](https://raw.githubusercontent.com/RedisLabs/redis-enterprise-azure/master/images/redis_arch.jpeg)
+
+### Getting Started
+1. Create your private settings file for the automated cluster setup. 
 ```
 cp setting.sh my_private_settings.sh
 ```

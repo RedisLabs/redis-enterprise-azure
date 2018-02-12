@@ -34,39 +34,55 @@ if [ $remove_known_hosts -eq 1 ]
         rm ~/.ssh/known_hosts
 fi
 
-#switch azure mode to asm
-azure config mode asm
-azure login -u $azure_account
+#login required
+az login -u $azure_account
+
+#create resource group
+echo $info_color"INFO"$no_color": CHECK RESOURCE GROUP: checking if you are reusing existing resource group in your account."
+cmd="az group exists --name $resource_group_name"
+existing_rg=$(eval $cmd)
+echo $existing_rg
+if [ $existing_rg == "false" ]
+	then
+	echo $info_color"INFO"$no_color": CREATE RESOURCE GROUP: creating new resource group for the deployment."
+	cmd="az group create --name $resource_group_name  --location $location"
+	echo $info_color"INFO"$no_color": RUNNING COMMAND: $cmd"
+	eval $cmd
+fi
 
 #create vnet with large vm count - 1024
 echo $info_color"INFO"$no_color": CREATE VNET: creating vnet with large vm count. This command may fail if you already have the vnet with the same name created in your account."
-cmd="azure network vnet create --vnet $vnet_name -l \"west US\" -e 10.0.0.1 -m 1024"
-echo $info_color"INFO"$no_color": RUNNING COMMAND: azure network vnet create --vnet $vnet_name -l \"west US\" -e 10.0.0.1 -m 1024"
+cmd="az network vnet create -n $vnet_name --resource-group $resource_group_name --address-prefixes 10.0.0.0/16 --subnet-name redis_subnet --subnet-prefix 10.0.0.0/24"
+echo $info_color"INFO"$no_color": RUNNING COMMAND: $cmd"
 eval $cmd
-
 
 #create jumpbox vm
 if [ $disable_jumpbox -ne 1 ]
     then
 	echo $info_color"INFO"$no_color": Working on jumpbox instance."
-    cmd="azure vm create -l $region -z $jumpbox_vm_sku -n $vm_name_prefix-jumpbox -w $vnet_name -c $service_name -r -g $jumpbox_vm_admin_account_name -p $jumpbox_vm_admin_account_password -s $azure_subscription_id $jumpbox_image_name"
+	cmd="az vm create --resource-group $resource_group_name --name $vm_name_prefix_jumpbox --vnet-name $vnet_name --subnet redis_subnet  --image $jumpbox_image --size $jumpbox_vm_sku  --authentication-type password --admin-username $jumpbox_vm_admin_account_name --admin-password $jumpbox_vm_admin_account_password"
     echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd 
     eval $cmd
 fi
 
 for ((i=1; i<=$rp_total_nodes; i++))
 do
-
 	#create vm
 	echo ""
-	echo $info_color"##############################################################################"$no_color
+	echo $info_color"--------------------------------------------------------------------------------"$no_color
 	echo $info_color"INFO"$no_color": WORKING ON VM INSTANCE: $i"
 	echo ""
-    cmd="azure vm create -l $region -z $rp_vm_sku -e $i -n $vm_name_prefix-$i -w $vnet_name -c $service_name -t $vm_auth_cert_public -g $rp_vm_admin_account_name -P -s $azure_subscription_id $rp_vm_image_name"
+    cmd="az vm create --resource-group $resource_group_name --name $vm_name_prefix-$i --vnet-name $vnet_name --subnet redis_subnet  --image $rp_vm_image_name --authentication-type ssh  --ssh-key-value $vm_auth_cert_public --admin-username $rp_vm_admin_account_name"
     echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd 
     eval $cmd
     sleep 120
-	
+
+	#grab ip address for ssh access
+	cmd="az vm list-ip-addresses --resource-group $resource_group_name --name $vm_name_prefix-$i --query [0].virtualMachine.network.publicIpAddresses[0].ipAddress --output tsv"
+    echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd 
+    ssh_address=$(eval $cmd)
+	echo $info_color"INFO"$no_color": VM EXTERNAL IP ADDRESS: "$ssh_address
+    
 	#check if persisted drives required
 	if [ $data_disk_count -gt 0 ]
 	then 
@@ -74,58 +90,65 @@ do
 		do 
 			#attach data-disks to vm
 			echo $info_color"INFO"$no_color": WORKING ON PERSISTED DATA DISK: $j"
-			cmd="azure vm disk attach-new -c ReadOnly -s $azure_subscription_id $vm_name_prefix-$i $data_disk_size"
+			cmd="az vm disk attach --resource-group $resource_group_name  --vm-name $vm_name_prefix-$i --disk redisdisk-$vm_name_prefix-$i-$j --new --size-gb $data_disk_size"
 			echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd 
 			eval $cmd
 		done
 
 		#set up RAID0 on data-disks
 		echo $info_color"INFO"$no_color": ESTABLISHING RAID0 ON /datadisks/disk1"
+		
 		#download script
-		cmd="ssh -p $i $rp_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo wget \"https://raw.githubusercontent.com/redislabs/rp-azure/master/OSx_Scripts/vm-disk-utils-0.1.sh\"'"
+		cmd="ssh  $rp_vm_admin_account_name@$ssh_address -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo wget \"https://raw.githubusercontent.com/RedisLabs/redis-enterprise-azure/master/OSx_Scripts/vm-disk-utils-0.1.sh\"'"
 		echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
 		eval $cmd
+
 		#chmod for script execution
-		cmd="ssh -p $i $rp_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo chmod 555 vm-disk-utils-0.1.sh'"
+		cmd="ssh  $rp_vm_admin_account_name@$ssh_address -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo chmod 555 vm-disk-utils-0.1.sh'"
 		echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
 		eval $cmd
 		
 		#install mdadm
-		cmd="ssh -p $i $rp_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo env DEBIAN_FRONTEND=noninteractive apt-get -y install mdadm'"
+		cmd="ssh  $rp_vm_admin_account_name@$ssh_address -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo env DEBIAN_FRONTEND=noninteractive apt-get update'"
+		echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
+		eval $cmd
+
+		#install mdadm
+		cmd="ssh  $rp_vm_admin_account_name@$ssh_address -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo env DEBIAN_FRONTEND=noninteractive apt-get -y install mdadm'"
 		echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
 		eval $cmd
 		
 		#execute RAID disk setup script
-		cmd="ssh -p $i $rp_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo ./vm-disk-utils-0.1.sh -b /datadisks -s'"
+		cmd="ssh  $rp_vm_admin_account_name@$ssh_address -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo ./vm-disk-utils-0.1.sh -b /datadisks -s'"
 		echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
 		eval $cmd
 	fi
 
 	#download Redis Pack
 	echo $info_color"INFO"$no_color": DOWNLOADING Redis Pack"
-	cmd="ssh -p $i $rp_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo wget \"$rp_download\" -O $rp_binary'"
+	cmd="ssh  $rp_vm_admin_account_name@$ssh_address -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo wget \"$rp_download\" -O $rp_binary'"
 	echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
 	eval $cmd
 
 	#extract Redis Pack
 	echo $info_color"INFO"$no_color": EXTRACTING Redis Pack .tar"
-	cmd="ssh -p $i $rp_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo tar vxf $rp_binary'"
+	cmd="ssh  $rp_vm_admin_account_name@$ssh_address -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo tar vxf $rp_binary'"
 	echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
 	eval $cmd
 	sleep 30
 
 	#install Redis Pack
 	echo $info_color"INFO"$no_color": INSTALLING Redis Pack"
-	cmd="ssh -p $i $rp_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo ./install.sh -y'"
+	cmd="ssh  $rp_vm_admin_account_name@$ssh_address -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo ./install.sh -y'"
 	echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
 	eval $cmd
 	sleep 30
 
 	#execute permission for SSD drive
-	cmd="ssh -p $i $rp_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo chmod 755 /mnt'"
+	cmd="ssh  $rp_vm_admin_account_name@$ssh_address -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo chmod 755 /mnt'"
 	echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
 	eval $cmd
-	cmd="ssh -p $i $rp_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo chown redislabs:redislabs /mnt'"
+	cmd="ssh  $rp_vm_admin_account_name@$ssh_address -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo chown redislabs:redislabs /mnt'"
 	echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
 	eval $cmd
 
@@ -134,16 +157,16 @@ do
 	then 
         #init-cluster on first node and add-node on rest of the nodes
 		echo $info_color"INFO"$no_color": GETTING FIRST NODE IP"
-        cmd="ssh -p $i $rp_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'ifconfig | grep 10.0.0. | cut -d\":\" -f 2 | cut -d\" \" -f 1'"
+        cmd="ssh  $rp_vm_admin_account_name@$ssh_address -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'ifconfig | grep 10.0.0. | cut -d\":\" -f 2 | cut -d\" \" -f 1'"
         echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
         first_node_ip=$(eval $cmd)  
         echo $info_color"INFO"$no_color": FIRST NODE IP:  $first_node_ip"
 
 		#move license file if one exists
-		if [ $rp_license_file != "" ]
+		if [ ! -z ${rp_license_file} ]
 		then
 			echo $info_color"INFO"$no_color": UPLOADING LICENSE FILE"
-	        cmd="cat $rp_license_file | ssh -p $i $rp_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'cat -> $rp_license_file'"
+	        cmd="cat $rp_license_file | ssh  $rp_vm_admin_account_name@$ssh_address -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'cat -> $rp_license_file'"
     	    echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
 			eval $cmd
 		fi
@@ -151,17 +174,17 @@ do
 		if [ $data_disk_count -gt 0 ]
 		then 
 			#execute permission change script
-			cmd="ssh -p $i $rp_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo chmod 755 /datadisks/disk1'"
+			cmd="ssh  $rp_vm_admin_account_name@$ssh_address -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo chmod 755 /datadisks/disk1'"
 			echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
 			eval $cmd
-			cmd="ssh -p $i $rp_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo chown redislabs:redislabs /datadisks/disk1'"
+			cmd="ssh  $rp_vm_admin_account_name@$ssh_address -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo chown redislabs:redislabs /datadisks/disk1'"
 			echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
 			eval $cmd
 			
 			#set data path to data-disk location
 			echo $info_color"INFO"$no_color": RUNNING CLUSTER-INIT with PERSISTED STORAGE"
-			cmd="ssh -p $i $rp_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo /opt/redislabs/bin/rladmin cluster create name $rp_fqdn username $rp_admin_account_name password $rp_admin_account_password persistent_path /datadisks/disk1 flash_enabled flash_path /mnt"
-			if [ $rp_license_file != "" ]
+			cmd="ssh  $rp_vm_admin_account_name@$ssh_address -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo /opt/redislabs/bin/rladmin cluster create name $rp_fqdn username $rp_admin_account_name password $rp_admin_account_password persistent_path /datadisks/disk1 flash_enabled flash_path /mnt"
+			if [ ! -z ${rp_license_file} ]
 			then
 				cmd="$cmd license_file $rp_license_file'"
 			else
@@ -171,8 +194,8 @@ do
 			eval $cmd
 		else
 			echo $info_color"INFO"$no_color": RUNNING CLUSTER-INIT with EPHEMERAL STORAGE"
-			cmd="ssh -p $i $rp_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo /opt/redislabs/bin/rladmin cluster create name $rp_fqdn username $rp_admin_account_name password $rp_admin_account_password flash_enabled flash_path /mnt"
-			if [ $rp_license_file != "" ]
+			cmd="ssh  $rp_vm_admin_account_name@$ssh_address -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo /opt/redislabs/bin/rladmin cluster create name $rp_fqdn username $rp_admin_account_name password $rp_admin_account_password flash_enabled flash_path /mnt"
+			if [ ! -z ${rp_license_file} ]
 			then
 				cmd="$cmd license_file $rp_license_file'"
 			else
@@ -183,7 +206,7 @@ do
 		fi
 	else
         #add-cluster on non-first node
-        cmd="ssh -p $i $rp_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'ifconfig | grep 10.0.0. | cut -d\":\" -f 2 | cut -d\" \" -f 1'"
+        cmd="ssh  $rp_vm_admin_account_name@$ssh_address -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'ifconfig | grep 10.0.0. | cut -d\":\" -f 2 | cut -d\" \" -f 1'"
         echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
         node_ip=$(eval $cmd)  
         echo $info_color"INFO"$no_color": NODE IP: $node_ip"
@@ -191,21 +214,21 @@ do
 		if [ $data_disk_count -gt 0 ]
 		then 
 			#execute permission change script
-			cmd="ssh -p $i $rp_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo chmod 755 /datadisks/disk1'"
+			cmd="ssh  $rp_vm_admin_account_name@$ssh_address -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo chmod 755 /datadisks/disk1'"
 			echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
 			eval $cmd
-			cmd="ssh -p $i $rp_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo chown redislabs:redislabs /datadisks/disk1'"
+			cmd="ssh  $rp_vm_admin_account_name@$ssh_address -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo chown redislabs:redislabs /datadisks/disk1'"
 			echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
 			eval $cmd
 			
 			#set data and index path to data-disk location
 			echo $info_color"INFO"$no_color": RUNNING CLUSTER-INIT with PERSISTED STORAGE"
-			cmd="ssh -p $i $rp_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo /opt/redislabs/bin/rladmin cluster join username $rp_admin_account_name password $rp_admin_account_password nodes $first_node_ip persistent_path /datadisks/disk1 flash_enabled flash_path /mnt'"
+			cmd="ssh  $rp_vm_admin_account_name@$ssh_address -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo /opt/redislabs/bin/rladmin cluster join username $rp_admin_account_name password $rp_admin_account_password nodes $first_node_ip persistent_path /datadisks/disk1 flash_enabled flash_path /mnt'"
 			echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
 			eval $cmd
 		else
 			echo $info_color"INFO"$no_color": RUNNING CLUSTER-INIT with EPHEMERAL STORAGE"
-			cmd="ssh -p $i $rp_vm_admin_account_name@$service_name.cloudapp.net -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo /opt/redislabs/bin/rladmin cluster join username $rp_admin_account_name password $rp_admin_account_password nodes $first_node_ip flash_enabled flash_path /mnt'"
+			cmd="ssh  $rp_vm_admin_account_name@$ssh_address -i $vm_auth_cert_private -o StrictHostKeyChecking=no 'sudo /opt/redislabs/bin/rladmin cluster join username $rp_admin_account_name password $rp_admin_account_password nodes $first_node_ip flash_enabled flash_path /mnt'"
 			echo $info_color"INFO"$no_color": RUNNING COMMAND: "$cmd
 			eval $cmd
 		fi
@@ -229,7 +252,7 @@ fi
 echo $info_color"INFO"$no_color": Redis Pack Admin Account:" $rp_admin_account_name
 echo $info_color"INFO"$no_color": Redis Pack Admin Password:" $rp_admin_account_password
 echo $info_color"##############################################################################"$no_color
-echo $info_color"INFO"$no_color": To SSH Into Cluster Nodes: ssh -p <port> " $rp_vm_admin_account_name"@$service_name.cloudapp.net -i "$vm_auth_cert_private" -o StrictHostKeyChecking=no" 
+echo $info_color"INFO"$no_color": To SSH Into Cluster Nodes: ssh -p <port> " $rp_vm_admin_account_name"@$ssh_address -i "$vm_auth_cert_private" -o StrictHostKeyChecking=no" 
 echo $info_color"INFO"$no_color": Redis Pack VM Account Name:" $rp_vm_admin_account_name
 echo $info_color"##############################################################################"$no_color
 echo $info_color"INFO"$no_color": RUN ./delete_azure_cluster.sh TO CLEANUP THE CLUSTER"

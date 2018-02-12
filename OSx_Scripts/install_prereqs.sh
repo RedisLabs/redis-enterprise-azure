@@ -25,8 +25,10 @@
 # Script Name: install_prereqs_azure_cluster.sh
 # Author: Cihan Biyikoglu - github:(cihanb)
 
-brew install node
-sudo npm install -g azure-cli
+#detailed install for [azure-cli](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-macos?view=azure-cli-latest)
+brew update && brew install azure-cli
+brew link --overwrite python3
+
 
 #enable autocompletion
 azure --completion >> ~/azure.completion.sh
