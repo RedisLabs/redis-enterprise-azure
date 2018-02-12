@@ -4,11 +4,12 @@ __*Note:If you are looking for a managed Redis service on Azure visit [Redis Ent
 Simple automated setup for a Redis Enterprise Software deployment on Azure. Ideal for build up and teardown of test environments or development environments. Works with [Redis Enterprise Software](https://redislabs.com/redis-enterprise/software/downloads/) v4.4 or later and ```azure-cli 2.0```
 
 ## What is Redis Enterprise?
-[__Redis Enterprise Pack__](https://redislabs.com/products/redis-pack/) is enterprise grade, distributed, in-memory NoSQL database server, fully compatible with open source Redis by Redis Labs. Redis Enterprise Pack extends open source Redis and delivers stable high performance, zero-downtime linear scaling and high availability, with significant operational savings.
+[__Redis Enterprise Software__](https://redislabs.com/redis-enterprise/software/) is enterprise grade, distributed, in-memory NoSQL database server, fully compatible with open source Redis by Redis Labs. Redis Enterprise Software extends open source Redis and delivers stable high performance, zero-downtime linear scaling and high availability, with significant operational savings.
 
-**_Note: Open source Redis applications transparently work against Redis Enterprise Pack. Simply change your connections to point at Redis Enterprise Pack database endpoint._**
+**_Note: Open source Redis applications transparently work against Redis Enterprise Software. Simply change your connections to point at Redis Enterprise Software database endpoint._**
 
-Redis Enterprise Pack can be deployed to use both RAM and Flash drives such as SSDs for data processing. See [Redis on Flash](https://redislabs.com/products/redis-pack/flash-memory/)) for details. Redis Enterprise Pack can also support active-active geo-distributed applications with [Redis CRDTs](https://redislabs.com/redis-enterprise-documentation/concepts-architecture/intercluster-replication/)
+Redis Enterprise Software can be deployed to use both RAM and Flash drives such as SSDs for data processing. See [Redis on Flash](https://redislabs.com/redis-enterprise-documentation/concepts-architecture/memory-architecture/redis-flash/)) for details. Redis Enterprise Pack can also support active-active geo-distributed applications with [Redis CRDTs](https://redislabs.com/redis-enterprise-documentation/concepts-architecture/intercluster-replication/)
+
 
 ![RP Architecture](https://raw.githubusercontent.com/RedisLabs/redis-enterprise-azure/master/images/redis_arch.jpeg)
 
