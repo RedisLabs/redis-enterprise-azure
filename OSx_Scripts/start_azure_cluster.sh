@@ -35,16 +35,12 @@ read yes_no
 if [ $yes_no == 'y' ]
 then
     #login
-    azure login -u $azure_account
-
-    #set mode to asm
-    azure config mode asm
-
+    az login -u $azure_account
 
     #loop to clean up all nodes.
     for ((i=1; i<=$rp_total_nodes; i++))
     do
-        echo "CMD: azure vm start "$vm_name_prefix"-"$i" "
+        echo "CMD: az vm start "$vm_name_prefix"-"$i" "
         if [ $enable_fast_start == 1 ]
         then
             yes_no='y'
@@ -56,7 +52,7 @@ then
         if [ $yes_no == 'y' ]
         then
             echo "STARTING Redis Pack NODE: "$vm_name_prefix"-"$i
-            azure vm start $vm_name_prefix-$i
+            az vm start $vm_name_prefix-$i
         else
             echo "SKIPPED START STEP. DID NOT START Redis Pack NODE: "$vm_name_prefix"-"$i
         fi

@@ -35,14 +35,14 @@ read yes_no
 if [ $yes_no == 'y' ]
 then
     #login
-    azure login -u $azure_account
+    az login -u $azure_account
 
     #set mode to asm
-    azure config mode asm
+    az config mode asm
 
 if [ $disable_jumpbox -ne 1 ]
     then 
-        echo $info_color"INFO"$no_color": RUNNING COMMAND: azure vm delete "$vm_name_prefix"-jumpbox -q"
+        echo $info_color"INFO"$no_color": RUNNING COMMAND: az vm delete "$vm_name_prefix"-jumpbox -q"
         if [ $enable_fast_delete == 1 ]
         then
             yes_no='y'
@@ -54,7 +54,7 @@ if [ $disable_jumpbox -ne 1 ]
         if [ $yes_no == 'y' ]
         then
             echo $info_color"INFO"$no_color": DELETING JUMPBOX: "$vm_name_prefix"-jumpbox"
-            azure vm delete $vm_name_prefix-jumpbox -q
+            az vm delete $vm_name_prefix-jumpbox -q
         else
             echo $info_color"INFO"$no_color": SKIPPED CLEANUP STEP. DID NOT DELETE JUMPBOX: "$vm_name_prefix"-jumpbox"
         fi         
@@ -65,7 +65,7 @@ fi
     #loop to clean up all nodes.
     for ((i=1; i<=$rp_total_nodes; i++))
     do
-        echo $info_color"INFO"$no_color": RUNNING COMMAND: azure vm delete "$vm_name_prefix"-"$i" -q"
+        echo $info_color"INFO"$no_color": RUNNING COMMAND: az vm delete "$vm_name_prefix"-"$i" -q"
         if [ $enable_fast_delete == 1 ]
         then
             yes_no='y'
@@ -77,14 +77,14 @@ fi
         if [ $yes_no == 'y' ]
         then
             echo $info_color"INFO"$no_color": DELETING Redis Pack NODE: "$vm_name_prefix"-"$i
-            azure vm delete $vm_name_prefix-$i -q
+            az vm delete $vm_name_prefix-$i -q
         else
             echo $info_color"INFO"$no_color": SKIPPED CLEANUP STEP. DID NOT DELETE Redis Pack NODE: "$vm_name_prefix"-"$i
         fi
     done
 
     #delete the vnet
-        echo $info_color"INFO"$no_color": RUNNING COMMAND: azure network vnet delete $vnet_name -q"
+        echo $info_color"INFO"$no_color": RUNNING COMMAND: az network vnet delete $vnet_name -q"
         if [ $enable_fast_delete == 1 ]
         then
             yes_no='y'
@@ -95,7 +95,7 @@ fi
             
         if [ $yes_no == 'y' ]
         then
-            azure network vnet delete $vnet_name -q
+            az network vnet delete $vnet_name -q
         else
             echo $info_color"INFO"$no_color": SKIPPED CLEANUP STEP. DID NOT DELETE VNET: "$vnet_name
         fi

@@ -14,18 +14,30 @@ Redis Enterprise Software can be deployed to use both RAM and Flash drives such 
 ![RP Architecture](https://raw.githubusercontent.com/RedisLabs/redis-enterprise-azure/master/images/redis_arch.jpeg)
 
 ### Getting Started
-1. Create your private settings file for the automated cluster setup. 
+1. Clone git repo and Create your private settings file for the automated cluster setup. 
+
+```bash
+git clone https://github.com/redislabs/redis-enterprise-azure
 ```
+
+```bash
+cd redis-enterprise-azure/OSx_Scripts
 cp setting.sh my_private_settings.sh
 ```
+
 2. Update your settings in ````my_private_settings.sh````
 
     a. Provide Azure subscription and account details under ````azure_account```` and ````azure_subscription_id````
 
-    b. Provide the ceritificates for vm provisioning under ````vm_auth_cert_public```` and ````vm_auth_cert_private````
+    b. Provide username and password for JUMPBOX VM ````jumpbox_admin_account_name```` and ````jumpbox_admin_account_password````
 
-5. Run ````create_azure_cluster.sh```` to launch your Redis Enterprise Pack cluster on Azure
-6. Connect to ````https://private-ip-address:8443```` for Redis Enterprise Pack UI. [Create a redis database](https://redislabs.com/redis-enterprise-documentation/database-configuration/creating-a-new-database/) and [Connect to your Redis database](https://redislabs.com/redis-enterprise-documentation/database-configuration/creating-a-new-database/#simple-connectivity-test) using Redis Enterprise GUI.
+    c. Provide username and password for CLUSTER NODES ````rp_vm_admin_account_name```` and certificates for SSH ````vm_auth_cert_public```` + ````vm_auth_cert_private````
+
+    d. Provide username and password for CLUSTER ADMIN ````rp_admin_account_name```` and ````rp_admin_account_password````
+
+
+3. Run ````create_azure_cluster.sh```` to launch your Redis Enterprise Pack cluster on Azure
+4. Connect to ````https://private-ip-address:8443```` for Redis Enterprise Pack UI. [Create a redis database](https://redislabs.com/redis-enterprise-documentation/database-configuration/creating-a-new-database/) and [Connect to your Redis database](https://redislabs.com/redis-enterprise-documentation/database-configuration/creating-a-new-database/#simple-connectivity-test) using Redis Enterprise GUI.
 
 
 For teardown use ````delete_azure_cluster.sh```` to destroy the cluster.

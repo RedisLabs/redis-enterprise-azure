@@ -45,9 +45,6 @@ resource_group_name="redis-rg"
 #TODO: use "azure login -u account" +  "azure account show" to get  account and subscriptionid
 azure_account="ADD ACCOUNT DETAILS"
 azure_subscription_id="ADD SUBSCRIPTION ID"
-#TODO: certs for ssh. use ssh-keygen to generate the keys - public and private
-vm_auth_cert_public="~/.ssh/id_rsa.pub"
-vm_auth_cert_private="~/.ssh/id_rsa"
 #prefix to use for the VM name for all nodes 
 vm_name_prefix="rp"
 #vnet name to keeps azure vms in the same subnet - pick from "azure network vnet list"
@@ -55,7 +52,6 @@ vnet_name="rpvnet"
 #azure service name for all nodes
 service_name="redislabs-service"
 #region where to provision all nodes
-location="westUS"
 region="'west US'"
 #number of data-disks to attach - check the max data-disk allowed on each SKU
 data_disk_count=2
@@ -68,33 +64,36 @@ data_disk_size=1023
 disable_jumpbox=0
 vm_name_prefix_jumpbox="redis-jumpbox"
 #image to use for the jumpbox. using windows server by default
-jumpbox_image="win2016datacenter"
+jumpbox_image="MicrosoftWindowsServer:WindowsServer:2016-Datacenter:latest"
 #jumpbox vm sku to use. 
 jumpbox_vm_sku="Standard_D2"
 #TODO: change this username
-jumpbox_vm_admin_account_name="rl_vmadmin"
+jumpbox_vm_admin_account_name="JUMPBOX USERNAME"
 #TODO: change this password
-jumpbox_vm_admin_account_password="redisl@bs123"
+jumpbox_vm_admin_account_password="JUMPBOX PASSWORD"
 
 ##cluster settings
 #ubuntu OS image to use on azure
-rp_vm_image_name="Canonical:UbuntuServer:14.04.5-LTS:14.04.201801220"
+rp_vm_image_name="Canonical:UbuntuServer:14.04.5-LTS:14.04.201802221"
 #cluster vm sku to use. Standard_D2 can be used as the minimum HW. 
 rp_vm_sku="Standard_D2"
-#rp cluster vm admin account name
-rp_vm_admin_account_name="rl_vmadmin"
+#TODO: rp cluster vm admin account name
+rp_vm_admin_account_name="CLUSTER NODE USERNAME"
+#TODO: certs for ssh. use ssh-keygen to generate the keys - public and private
+vm_auth_cert_public="~/.ssh/id_rsa.pub"
+vm_auth_cert_private="~/.ssh/id_rsa"
 
 #misc settings
 #this will enable removing the .ssh/known_hosts file under MacOS. The file gets in the way of reprovisioning the same node names for the cluster.
 remove_known_hosts=1
 #enable fast delete will supress confirmation on deletes of each VM. do this only if you are certain delete will not harm your existing VMs and you have tried the script multiple times.
-enable_fast_delete=1
+enable_fast_delete=0
 #enable fast restart will supress confirmation on restarts of each VM. do this only if you are certain restart will not harm your existing VMs and you have tried the script multiple times.
 enable_fast_restart=1
 #enable fast start will supress confirmation on start of each VM. do this only if you are certain start will not harm your existing VMs and you have tried the script multiple times.
 enable_fast_start=1
 #enable fast shutdown will supress confirmation on shutdowns of each VM. do this only if you are certain shutdown will not harm your existing VMs and you have tried the script multiple times.
-enable_fast_shutdown=1
+enable_fast_shutdown=0
 #print colors
 info_color="\033[1;32m"
 warning_color="\033[0;32m"

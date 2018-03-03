@@ -35,16 +35,12 @@ read yes_no
 if [ $yes_no == 'y' ]
 then
     #login
-    azure login -u $azure_account
-
-    #set mode to asm
-    azure config mode asm
-
+    az login -u $azure_account
 
     #loop to clean up all nodes.
     for ((i=1; i<=$rp_total_nodes; i++))
     do
-        echo "CMD: azure vm shutdown "$vm_name_prefix"-"$i" "
+        echo "CMD: az vm shutdown "$vm_name_prefix"-"$i" "
         if [ $enable_fast_shutdown == 1 ]
         then
             yes_no='y'
@@ -56,7 +52,7 @@ then
         if [ $yes_no == 'y' ]
         then
             echo "SHUTDOWN Redis Pack NODE: "$vm_name_prefix"-"$i
-            azure vm shutdown $vm_name_prefix-$i 
+            az vm shutdown $vm_name_prefix-$i 
         else
             echo "SKIPPED SHUTDOWN STEP. DID NOT SHUTDOWN Redis Pack NODE: "$vm_name_prefix"-"$i
         fi
